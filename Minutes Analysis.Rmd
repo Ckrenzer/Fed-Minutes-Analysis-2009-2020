@@ -4,6 +4,10 @@ author: "Connor Krenzer"
 date: "1/4/2021"
 output: html_document
 ---
+## Introduction
+Provide some background, explain what the Fed Minutes are, etc... then describe the data you will be analyzing
+
+The data included in this analysis includes all FOMC Minutes between January 28th, 2009 to November 5th, 2020 (inclusive).
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
@@ -15,19 +19,12 @@ knitr::opts_chunk$set(echo = FALSE,
 
 ## Packages
 
-
+Note that I am using the pacman package here, because it incorporates the installing and loading of packages quite nicely.
 ```{r, echo = TRUE}
 if(!require(pacman)) install.packages("pacman")
 pacman::p_load(tidytext, dplyr, readtext)
 
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Data Import
+Describe how you will import your data and how you will organize it--import the obama-era data, add an identifier, such as "Obama" column, a date column, then do the same for the trump era.
