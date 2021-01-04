@@ -22,7 +22,7 @@ knitr::opts_chunk$set(echo = FALSE,
 
 ## Packages
 
-Note that I am using the pacman package here, because it incorporates the installing and loading of packages quite nicely.
+Note that I am using the pacman package here, because it incorporates both the installation and loading of packages quite nicely.
 ```{r, echo = TRUE}
 if(!require(pacman)) install.packages("pacman")
 pacman::p_load(tidytext, dplyr, readtext)
