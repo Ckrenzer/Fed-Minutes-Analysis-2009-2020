@@ -8,9 +8,24 @@ output: html_document
 The Federal Reserve is the central bank of the United States. Central banks conduct a country's monetary policy (policy pertaining to money--interest rates, regulation of the banking sector, etc.) in the aims of achieving it's 'dual mandate' of full employment (loosely defined as "anyone who wants a job can get a job") and price stability (predictable price changes throughout the United States as a whole). You can read more about what the Fed is and what they do [by following this link](https://www.federalreserve.gov/faqs/about_12594.htm).
 
 
+
+
+
+
 Every six weeks, policy makers on the Federal Reserve's Federal Open Market Committee (FOMC) meet to discuss decisions moving forward in the 
 
+
+
+
+
 The data included in this analysis includes all FOMC Minutes between January 28th, 2009 to November 5th, 2020 (inclusive).
+
+
+
+
+
+
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
@@ -23,9 +38,17 @@ knitr::opts_chunk$set(echo = FALSE,
 ## Packages
 
 Note that I am using the pacman package here, because it incorporates both the installation and loading of packages quite nicely.
+
+In addition, the tabulizer package was chosen to read in the PDF files because the Fed are organizes their releases into columns (there are two columns of text per page). Other popular packages for reading in PDFs, such as readtext or pdftools, read the file left to right, then work their way down; this poses problems when the order of the terms are needed in analysis. Why is that?
+
+
+That means words which do not follow one another (they are in separate sentences) are placed next to one another in the output. 
+
+
+For analysis using ngrams, this issue cannot go unresolved.
 ```{r, echo = TRUE}
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(tidytext, dplyr, readtext)
+pacman::p_load(tidytext, dplyr, tabulizer)
 
 ```
 
