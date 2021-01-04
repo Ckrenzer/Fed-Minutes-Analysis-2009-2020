@@ -32,12 +32,18 @@ pacman::p_load(tidytext, dplyr, readtext)
 ## Data Import
 Describe how you will import your data and how you will organize it--import the obama-era data, add an identifier, such as "Obama" column, a date column, then do the same for the trump era.
 ```{r, echo = TRUE}
-
+# Add file imports here
 
 ```
+
+## Cleaning
+This text is messy--the first few pages just list off people's names.
+
 
 the symbol below adds some space, or so I'm told
 
 $~$
 
 how about it?
+
+
