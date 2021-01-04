@@ -5,7 +5,10 @@ date: "1/4/2021"
 output: html_document
 ---
 ## Introduction
-Provide some background, explain what the Fed Minutes are, etc... then describe the data you will be analyzing
+The Federal Reserve is the central bank of the United States. Central banks conduct a country's monetary policy (policy pertaining to money--interest rates, regulation of the banking sector, etc.) in the aims of achieving it's 'dual mandate' of full employment (loosely defined as "anyone who wants a job can get a job") and price stability (predictable price changes throughout the United States as a whole). You can read more about what the Fed is and what they do [by following this link](https://www.federalreserve.gov/faqs/about_12594.htm).
+
+
+Every six weeks, policy makers on the Federal Reserve's Federal Open Market Committee (FOMC) meet to discuss decisions moving forward in the 
 
 The data included in this analysis includes all FOMC Minutes between January 28th, 2009 to November 5th, 2020 (inclusive).
 
@@ -28,3 +31,13 @@ pacman::p_load(tidytext, dplyr, readtext)
 
 ## Data Import
 Describe how you will import your data and how you will organize it--import the obama-era data, add an identifier, such as "Obama" column, a date column, then do the same for the trump era.
+```{r, echo = TRUE}
+
+
+```
+
+the symbol below adds some space, or so I'm told
+
+$~$
+
+how about it?

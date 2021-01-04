@@ -40,3 +40,6 @@ vignettes/*.pdf
 
 # The output file
 Minutes-Analysis.html
+
+# My own scrap work
+scrap work.R
