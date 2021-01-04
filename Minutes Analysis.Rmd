@@ -1,0 +1,33 @@
+---
+title: "Minutes Analysis"
+author: "Connor Krenzer"
+date: "1/4/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      results = "hide",
+                      error = F,
+                      warning = F,
+                      message = F)
+```
+
+## Packages
+
+
+```{r, echo = TRUE}
+if(!require(pacman)) install.packages("pacman")
+pacman::p_load(tidytext, dplyr, readtext)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
