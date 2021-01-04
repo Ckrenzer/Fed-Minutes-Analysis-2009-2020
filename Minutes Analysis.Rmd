@@ -5,23 +5,23 @@ date: "1/4/2021"
 output: html_document
 ---
 ## Introduction
-The Federal Reserve is the central bank of the United States. Central banks conduct a country's monetary policy (policy pertaining to money--interest rates, regulation of the banking sector, etc.) in the aims of achieving it's 'dual mandate' of full employment (loosely defined as "anyone who wants a job can get a job") and price stability (predictable price changes throughout the United States as a whole). You can read more about what the Fed is and what they do [by following this link](https://www.federalreserve.gov/faqs/about_12594.htm).
+The Federal Reserve is the central bank of the United States. Central banks conduct a country's monetary policy (policy pertaining to money--interest rates, regulation of the banking sector, etc.) in the aims of achieving it's 'dual mandate' of full employment (loosely defined as "anyone who wants a job can get a job") and price stability (predictable price changes throughout the United States as a whole). You can read more about what the Fed is and what they do [on their website](https://www.federalreserve.gov/faqs/about_12594.htm). For all of you Fed haters out there, perhaps [one of these articles](https://mises.org/topics/fed) aligns more closely with your views.
 
 
 
 
 
-
-Every six weeks, policy makers on the Federal Reserve's Federal Open Market Committee (FOMC) meet to discuss decisions moving forward in the 
-
+Every six weeks, policy makers on the Federal Reserve's Federal Open Market Committee (FOMC) meet to discuss economic indicators to determine and vote on policy in response to these indicators, among other things. The FOMC Statement released following this meeting can send the entire economy into turmoil--so much so that the minutes are withheld from the public for three weeks before becoming available.
 
 
 
 
-The data included in this analysis includes all FOMC Minutes between January 28th, 2009 to November 5th, 2020 (inclusive).
 
+The data in this analysis includes all FOMC Minutes between January 28th, 2009 to November 5th, 2020 (inclusive). As of the time of writing, the Minutes for the December 15th-16th meeting have not been released.
 
+$~$
 
+I will explore these texts using various text mining approaches including sentiment analysis, tf-idf (term frequency * inverse document frequency), and topic modeling.
 
 
 
@@ -39,16 +39,13 @@ knitr::opts_chunk$set(echo = FALSE,
 
 Note that I am using the pacman package here, because it incorporates both the installation and loading of packages quite nicely.
 
-In addition, the tabulizer package was chosen to read in the PDF files because the Fed are organizes their releases into columns (there are two columns of text per page). Other popular packages for reading in PDFs, such as readtext or pdftools, read the file left to right, then work their way down; this poses problems when the order of the terms are needed in analysis. Why is that?
+In addition, the tabulizer package was chosen to read in the PDF files because the Fed organizes their releases into columns (there are two columns of text per page). Other popular packages for reading PDFs, such as readtext or pdftools, read files left to right, then work their way down; this poses problems when the order of the terms are needed for an accurate analysis, as is the case here.
 
+Why is that a problem? Words which are in separate columns are placed next to one another in the String created when reading the file, meaning the order of the words do not reflect the actual writing. This is important because the order of the terms matter in both topic modeling and n-gram analysis. Fortunately, however, tabulizer's extract_text() function reads the columns of text individually, so the order of the writing is preserved.
 
-That means words which do not follow one another (they are in separate sentences) are placed next to one another in the output. 
-
-
-For analysis using ngrams, this issue cannot go unresolved.
 ```{r, echo = TRUE}
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(tidytext, dplyr, tabulizer)
+pacman::p_load(tidytext, dplyr, stringr)
 
 ```
 
@@ -57,16 +54,34 @@ Describe how you will import your data and how you will organize it--import the 
 ```{r, echo = TRUE}
 # Add file imports here
 
+# Example file extraction
+files <- paste("Fed Minutes Releases/Sample/",
+               list.files("Fed Minutes Releases/Sample/"),
+               sep = "")
+
+text <- character(4)
+counter <- 1
+for(i in files){
+  text[counter] <- tabulizer::extract_text(i) 
+counter <- counter + 1
+  }
+text[1]
+
+
 ```
 
-## Cleaning
-This text is messy--the first few pages just list off people's names.
+## Preprocessing
+This text is messy--the first few pages just list off the names of present members, there are loads of newline characters, page numbers, hyphens making horizontal lines (------------), and several other issues. Substantial data wrangling must take place before these texts are ready for analysis.
+
+```{r, echo = TRUE}
 
 
-the symbol below adds some space, or so I'm told
 
-$~$
 
-how about it?
+```
+
+
+
+
 
 
