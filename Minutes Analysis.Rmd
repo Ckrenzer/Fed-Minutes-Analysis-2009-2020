@@ -26,7 +26,7 @@ $~$
 I will explore these texts using various text mining approaches including sentiment analysis, tf-idf (term frequency * inverse document frequency), and topic modeling.
 
 
-Should you want to try running this code on your own computer, know that it will take more than a few hours to run!
+Should you want to try running this code on your own computer, know that it will take more than a few hours to run! Instead, I suggest you run the code using a small sample of documents.
 
 
 ```{r setup, include=FALSE}
@@ -41,7 +41,7 @@ knitr::opts_chunk$set(echo = FALSE,
 
 Note that I am using the pacman package here, because it incorporates both the installation and loading of packages quite nicely.
 
-I recommend pulling the information using the HTML version of these meetings, as the PDFs are a nightmare to clean (I'm speaking from experience). If you do decide to read in the pdf text into R, I suggest using the extract_text() function instead of the tabulizer package because it is smart enough to recognize columns of selectable PDF text as opposed to only individual lines.
+I recommend pulling the information using the HTML version of these meetings. The PDFs are a nightmare to clean (speaking from experience)! If you do decide to read the pdf text into R, I suggest using the extract_text() function from the tabulizer package because it is smart enough to recognize columns of selectable PDF text. Other popular packages for reading in PDFs, such as readtext or pdftools, will only read across the page left to right, then down--despite the pages containing two columns.
 
 ```{r, echo = TRUE}
 if(!require(pacman)) install.packages("pacman")
@@ -50,31 +50,93 @@ pacman::p_load(tidytext, dplyr, stringr, rvest)
 ```
 
 ## Data Import
-Describe how you will import your data and how you will organize it--import the obama-era data, add an identifier, such as "Obama" column, a date column, then do the same for the trump era.
 
+Since I started this process using the pdf files, I will use their file names to determine the corresponding url. If I had started mining this data from HTML in the first place, I might have come up with a more elegant solution, but downloading all the PDF files and using their names to put together urls works fine enough...
 
-Since I started this process using the pdf files, I will use their file names to extract the date (which correspond perfectly to the different part of the url online)
+There are two formats for the HTML file--those the Fed released before 2012 and those released after. Therefore, two functions are used to read in the different formats. I used for loops to create the dataset because the amount of overhead required to use loop functions in this context is unjustified.
 ```{r, echo = TRUE}
-# Add file imports here
+# Reading in all the files to get their names into a character vector
+report_names <- str_remove_all(list.files("Fed Minutes Releases/Sample/"), "\\.pdf")
 
-# Example file extraction
-files <- paste("Fed Minutes Releases/Sample/",
-               list.files("Fed Minutes Releases/Sample/"),
-               sep = "")
 
-text <- character(4)
-counter <- 1
-for(i in files){
-  text[counter] <- str_to_lower(tabulizer::extract_text(i)) 
-counter <- counter + 1
-  }
-text[1]
+# The functions to read in and clean the two formats:
+# For the Pre-2012 releases
+old_format <- function(id){
+  name <- str_c("https://www.federalreserve.gov/monetarypolicy/",
+                id,
+                ".htm")
+  
+  tibble(doc_id = id, text = read_html(name) %>% 
+           html_nodes("#leftText") %>% 
+           html_text() %>% 
+           str_split("\n", simplify = T) %>% 
+           as.vector() %>% 
+           magrittr::extract(38:length(.)) %>% 
+           magrittr::extract(!str_detect(., "_+")) %>%  # removing the signature
+           str_c(., collapse = " ") %>%
+           str_to_lower() %>% 
+           str_replace_all("'s|s'|\"|,|:|;|-{2,}|\\s+\\.\\s+", " ") %>% 
+           str_squish() %>% 
+           str_remove_all("return to text[\\d]*|return to top") %>% 
+           str_trim()
+  ) %>% 
+    return()
+  
+}#end of old_format()
+
+
+# For releases 2012 and on
+# We can always assume that the first 37 entries are bogus
+# Keep everything following the 37th entry
+new_format <- function(id){
+  name <- str_c("https://www.federalreserve.gov/monetarypolicy/",
+                id,
+                ".htm")
+  
+  tibble(doc_id = id, text = read_html(name) %>% 
+           html_nodes("p") %>% 
+           html_text() %>% 
+           str_trim() %>% 
+           str_squish() %>% 
+           magrittr::extract(38:length(.)) %>% 
+           magrittr::extract(!str_detect(., "_+")) %>%  # removing the signature
+           str_c(., collapse = " ") %>%
+           str_to_lower() %>% 
+           str_replace_all("'s|s'|\"|,|:|;|-{2,}|\\s+\\.\\s+", " ") %>% 
+           str_squish() %>% 
+           str_remove_all("return to text[\\d]*|return to top") %>% 
+           str_trim()
+  ) %>% 
+    return()
+  
+}#end of new_format()
+
+
+
+
+
+
+# The paths to the PDF files
+dirs <- c("Fed Minutes Releases/Obama Era/Pre 2012/",
+          "Fed Minutes Releases/Obama Era/Post 2012/",
+          "Fed Minutes Releases/Trump Era/")
+
+# Creating a tibble to store all the documents
+report_names <- str_remove_all(list.files(dirs), "\\.pdf")
+
+
+documents <- tibble(doc_id = NULL, text = NULL)
+for(i in report_names){
+  documents <- bind_rows(documents, new_format(i))
+  
+}
+
 
 
 ```
 
 ## Preprocessing
-This text is messy--the first few pages just list off the names of present members, there are loads of newline characters, page numbers, underscores making horizontal lines (------------), and several other issues. Substantial data wrangling must take place before these texts are ready for analysis.
+This analysis will be performed using tidy data principles.
 
 ```{r, echo = TRUE}
 # Note: using paste0() to keep the code from running off the line
