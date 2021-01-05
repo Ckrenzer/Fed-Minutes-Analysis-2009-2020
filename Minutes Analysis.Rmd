@@ -26,7 +26,7 @@ $~$
 I will explore these texts using various text mining approaches including sentiment analysis, tf-idf (term frequency * inverse document frequency), and topic modeling.
 
 
-
+Should you want to try running this code on your own computer, know that it will take more than a few hours to run!
 
 
 ```{r setup, include=FALSE}
@@ -45,12 +45,15 @@ I recommend pulling the information using the HTML version of these meetings, as
 
 ```{r, echo = TRUE}
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(tidytext, dplyr, stringr)
+pacman::p_load(tidytext, dplyr, stringr, rvest)
 
 ```
 
 ## Data Import
 Describe how you will import your data and how you will organize it--import the obama-era data, add an identifier, such as "Obama" column, a date column, then do the same for the trump era.
+
+
+Since I started this process using the pdf files, I will use their file names to extract the date (which correspond perfectly to the different part of the url online)
 ```{r, echo = TRUE}
 # Add file imports here
 
