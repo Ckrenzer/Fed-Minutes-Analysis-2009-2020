@@ -83,10 +83,11 @@ old_format <- function(id){
            html_text() %>% 
            stringr::str_split("\n", simplify = T) %>% 
            as.vector() %>% 
+           stringr::str_to_lower() %>% 
+           stringr::str_replace_all("'s|s'|\"|,|:|;|-{2,}", " ") %>% 
            magrittr::extract(!stringr::str_detect(., "_+")) %>%  # removing the signature
            stringr::str_c(., collapse = " ") %>%
-           stringr::str_to_lower() %>% 
-           stringr::str_replace_all("'s|s'|\"|,|:|;|-{2,}|\\s+\\.\\s+", " ") %>% 
+           stringr::str_remove_all("mr\\.{1}|mrs\\.{1}|ms\\.{1}") %>% 
            stringr::str_squish() %>% 
            stringr::str_remove_all("return to text[\\d]*|return to top") %>% 
            stringr::str_trim()
@@ -111,9 +112,10 @@ new_format <- function(id){
            stringr::str_squish() %>% 
            magrittr::extract(38:length(.)) %>% 
            magrittr::extract(!stringr::str_detect(., "_+")) %>%  # removing the signature
-           stringr::str_c(., collapse = " ") %>%
            stringr::str_to_lower() %>% 
-           stringr::str_replace_all("'s|s'|\"|,|:|;|-{2,}|\\s+\\.\\s+", " ") %>% 
+           stringr::str_remove_all("'s|s'|\"|,|:|;|-{2,}") %>% 
+           stringr::str_c(., collapse = " ") %>%
+           stringr::str_remove_all("mr\\.{1}|mrs\\.{1}|ms\\.{1}") %>%
            stringr::str_squish() %>% 
            stringr::str_remove_all("return to text[\\d]*|return to top") %>% 
            stringr::str_trim()
@@ -165,12 +167,12 @@ The data is almost ready for analysis--we have two columns: one for the document
 
 ```{r, echo = FALSE, include = TRUE, results = "show"}
 
-knitr::kable(tibble("Fed Minutes Text" = stringr::str_sub(documents$text[1], end = 510)))
+knitr::kable(tibble("Fed Minutes Text" = stringr::str_sub(documents$text[1], start = 8602, end = 9075)))
 
 ```
 
 
-The table above shows an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words have parsing irregularities, such as "mattersby" (which is actually written "matters by" in the document) on the second line. No algorithm is perfect, but one can see these errors are infrequent and therefore unlikely to skew the results of the analysis.
+The table above shows an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words have parsing irregularities, such as the lack of space between characters on the parentheses surrounding "millions of dollars equivalent." No algorithm is perfect, but one can see these errors are infrequent and therefore unlikely to heavily skew the results of the analysis. This code in this particular section represents a table detailing the relations with the Bank of Canada and the Bank of Mexico--tables do not parse well into large documents.
 
 
 
