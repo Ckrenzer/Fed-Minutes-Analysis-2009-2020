@@ -56,7 +56,7 @@ if(!"rvest" %in% package_names) install.packages("rvest")
 if(!"tibble" %in% package_names) install.packages("tibble")
 
 # Loading in dplyr because it is used too often
-# to :: it in the entire time
+# to :: it the entire time
 library(dplyr)
 
 
