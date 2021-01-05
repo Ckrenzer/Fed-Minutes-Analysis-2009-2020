@@ -48,12 +48,10 @@ I recommend pulling the information using the HTML version of these meetings. Th
 package_names <- rownames(installed.packages())
 
 # Installing packages used in this project
-if(!"magrittr" %in% package_names) install.packages("magrittr")
 if(!"dplyr" %in% package_names) install.packages("dplyr")
 if(!"stringr" %in% package_names) install.packages("stringr")
 if(!"tidytext" %in% package_names) install.packages("tidytext")
 if(!"rvest" %in% package_names) install.packages("rvest")
-if(!"tibble" %in% package_names) install.packages("tibble")
 
 # Loading in dplyr because it is used too often
 # to :: it the entire time
@@ -166,13 +164,34 @@ documents <- arrange(documents, doc_id)
 ```
 
 ## The Dataset
-The data is almost ready for analysis--we have two columns: one for the document name, and another for the contents of that document. If you are interested in performing a similar analysis, the data frame can now be transformed in a number of ways. You can use the unnest_tokens() function from the tidytext package to extract tokens (words, groups of words, paragraphs, etc.) and follow perform sentiment analysis, or you could make a term-document matrix and perform topic modeling. We will do both here, but let's begin by taking a look at the dataset.
+The data is almost ready for analysis--we have two columns: one for the document name, and another for the contents of that document. If you are interested in performing a similar analysis, the data frame can now be transformed in a number of ways. You can use the unnest_tokens() function from the tidytext package to extract tokens (words, groups of words, paragraphs, etc.) and follow perform sentiment analysis, or you could make a term-document matrix and perform topic modeling. We will do both, but let's begin by taking a look at the dataset.
 
-```{r, echo = TRUE, include = TRUE}
+```{r, echo = FALSE, include = TRUE, results = "show"}
 
-knitr::kable(tibble(doc_id = documents$doc_id[1], text = str_sub(documents$text[1], end = 510)))
+knitr::kable(tibble("Fed Minutes Text" = stringr::str_sub(documents$text[1], end = 510)))
 
 ```
 
 
-The table above shows an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words are concatenated together, such as "mattersby" (which is actually written "matters by" in the document itself). No algorithm is perfect, but you can see that these types of errors are infrequent and therefore unlikely to skew the results of the analysis.
+The table above shows an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words have parsing irregularities, such as "mattersby" (which is actually written "matters by" in the document) on the second line. No algorithm is perfect, but one can see these errors are infrequent and therefore unlikely to skew the results of the analysis.
+
+
+
+
+
+
+
+```{r,echo=F}
+
+
+
+
+
+
+```
+
+
+
+
+
+
