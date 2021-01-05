@@ -70,22 +70,19 @@ Since I started this process using the pdf files, I will use their file names to
 
 There are two formats for the HTML file--those the Fed released before 2012 and those released after. Therefore, two functions are used to read in the different formats. The doucments are read in chronological order, but they are arranged after being added to the tibble if something were to happen to the order of the files in the "Fed Minutes Releases" folder from which these names were pulled.
 ```{r, echo = TRUE}
-# The functions to read in and clean the documents:
-# For the Pre-2012 releases
 old_format <- function(id){
   
   # Note: using str_c() to prevent the code from going out of
   # bounds in the output (so I don't have to get into dark LaTex magic!)
   name <- stringr::str_c("https://www.federalreserve.gov/monetarypolicy/",
-                id,
-                ".htm")
+                         id,
+                         ".htm")
   
   tibble(doc_id = id, text = read_html(name) %>% 
            html_nodes("#leftText") %>% 
            html_text() %>% 
            stringr::str_split("\n", simplify = T) %>% 
            as.vector() %>% 
-           magrittr::extract(38:length(.)) %>% 
            magrittr::extract(!stringr::str_detect(., "_+")) %>%  # removing the signature
            stringr::str_c(., collapse = " ") %>%
            stringr::str_to_lower() %>% 
@@ -104,8 +101,8 @@ old_format <- function(id){
 # Keep everything following the 37th entry
 new_format <- function(id){
   name <- stringr::str_c("https://www.federalreserve.gov/monetarypolicy/",
-                id,
-                ".htm")
+                         id,
+                         ".htm")
   
   tibble(doc_id = id, text = read_html(name) %>% 
            html_nodes("p") %>% 
@@ -144,7 +141,7 @@ documents <- tibble::tibble(doc_id = NULL, text = NULL)
 
 # Reading in the old formats (pre-2012)
 for(i in stringr::str_remove_all(list.files(dirs[1]), "\\.pdf")){
-  documents <- bind_rows(documents, new_format(i))
+  documents <- bind_rows(documents, old_format(i))
   
   # simple, yet effective way of showing the operation's progress
   cat(".")
