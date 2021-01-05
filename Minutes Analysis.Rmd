@@ -41,9 +41,7 @@ knitr::opts_chunk$set(echo = FALSE,
 
 Note that I am using the pacman package here, because it incorporates both the installation and loading of packages quite nicely.
 
-In addition, the tabulizer package was chosen to read in the PDF files because the Fed organizes their releases into columns (there are two columns of text per page). Other popular packages for reading PDFs, such as readtext or pdftools, read files left to right, then work their way down; this poses problems when the order of the terms are needed for an accurate analysis, as is the case here.
-
-Why is that a problem? Words which are in separate columns are placed next to one another in the String created when reading the file, meaning the order of the words do not reflect the actual writing. This is important because the order of the terms matter in both topic modeling and n-gram analysis. Fortunately, however, tabulizer's extract_text() function reads the columns of text individually, so the order of the writing is preserved.
+I recommend pulling the information using the HTML version of these meetings, as the PDFs are a nightmare to clean (I'm speaking from experience). If you do decide to read in the pdf text into R, I suggest using the extract_text() function instead of the tabulizer package because it is smart enough to recognize columns of selectable PDF text as opposed to only individual lines.
 
 ```{r, echo = TRUE}
 if(!require(pacman)) install.packages("pacman")
