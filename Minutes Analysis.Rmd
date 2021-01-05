@@ -53,15 +53,14 @@ pacman::p_load(tidytext, dplyr, stringr, rvest)
 
 Since I started this process using the pdf files, I will use their file names to determine the corresponding url. If I had started mining this data from HTML in the first place, I might have come up with a more elegant solution, but downloading all the PDF files and using their names to put together urls works fine enough...
 
-There are two formats for the HTML file--those the Fed released before 2012 and those released after. Therefore, two functions are used to read in the different formats. I used for loops to create the dataset because the amount of overhead required to use loop functions in this context is unjustified.
+There are two formats for the HTML file--those the Fed released before 2012 and those released after. Therefore, two functions are used to read in the different formats.
 ```{r, echo = TRUE}
-# Reading in all the files to get their names into a character vector
-report_names <- str_remove_all(list.files("Fed Minutes Releases/Sample/"), "\\.pdf")
-
-
-# The functions to read in and clean the two formats:
+# The functions to read in and clean the documents:
 # For the Pre-2012 releases
 old_format <- function(id){
+  
+  # Note: using str_c() to prevent the code from going out of
+  # bounds in the output (so I don't have to get into dark LaTex magic!)
   name <- str_c("https://www.federalreserve.gov/monetarypolicy/",
                 id,
                 ".htm")
@@ -85,8 +84,8 @@ old_format <- function(id){
 }#end of old_format()
 
 
-# For releases 2012 and on
-# We can always assume that the first 37 entries are bogus
+# For releases 2012 and onward:
+# We can always assume the first 37 entries are bogus
 # Keep everything following the 37th entry
 new_format <- function(id){
   name <- str_c("https://www.federalreserve.gov/monetarypolicy/",
@@ -121,17 +120,24 @@ dirs <- c("Fed Minutes Releases/Obama Era/Pre 2012/",
           "Fed Minutes Releases/Obama Era/Post 2012/",
           "Fed Minutes Releases/Trump Era/")
 
-# Creating a tibble to store all the documents
-report_names <- str_remove_all(list.files(dirs), "\\.pdf")
 
-
+# An empty tibble--document names and their corresponding
+# text will be added to it.
 documents <- tibble(doc_id = NULL, text = NULL)
-for(i in report_names){
+
+
+
+# Reading in the old formats (pre-2012)
+for(i in str_remove_all(list.files(dirs[1]), "\\.pdf")){
   documents <- bind_rows(documents, new_format(i))
   
 }
 
-
+# Reading in the new formats (2012-present)
+for(i in str_remove_all(list.files(dirs[2:3]), "\\.pdf")){
+  documents <- bind_rows(documents, new_format(i))
+  
+}
 
 ```
 
@@ -139,8 +145,7 @@ for(i in report_names){
 This analysis will be performed using tidy data principles.
 
 ```{r, echo = TRUE}
-# Note: using paste0() to keep the code from running off the line
-# (so I don't have to get into dark LaTex magic!)
+
 str_detect(text[3],
            paste0("minutes\\s+of\\s+the\\s+meeting\\s+of\\s+january\\s+\\d.*",
                   "\\d?,\\s+\\d{4}\\s+page\\s+\\d{1,2}|minutes\\s+of\\s+the\\s+",
