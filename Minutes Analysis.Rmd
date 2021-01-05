@@ -88,7 +88,7 @@ old_format <- function(id){
            stringr::str_split("\n", simplify = T) %>% 
            as.vector() %>% 
            magrittr::extract(38:length(.)) %>% 
-           magrittr::extract(!str_detect(., "_+")) %>%  # removing the signature
+           magrittr::extract(!stringr::str_detect(., "_+")) %>%  # removing the signature
            stringr::str_c(., collapse = " ") %>%
            stringr::str_to_lower() %>% 
            stringr::str_replace_all("'s|s'|\"|,|:|;|-{2,}|\\s+\\.\\s+", " ") %>% 
@@ -115,7 +115,7 @@ new_format <- function(id){
            stringr::str_trim() %>% 
            stringr::str_squish() %>% 
            magrittr::extract(38:length(.)) %>% 
-           magrittr::extract(!str_detect(., "_+")) %>%  # removing the signature
+           magrittr::extract(!stringr::str_detect(., "_+")) %>%  # removing the signature
            stringr::str_c(., collapse = " ") %>%
            stringr::str_to_lower() %>% 
            stringr::str_replace_all("'s|s'|\"|,|:|;|-{2,}|\\s+\\.\\s+", " ") %>% 
