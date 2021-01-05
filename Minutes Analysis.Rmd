@@ -165,7 +165,7 @@ for(i in stringr::str_remove_all(list.files(dirs[2:3]), "\\.pdf")){
 ## The Dataset
 The data is almost ready for analysis--we have two columns: one for the document name, and another for the contents of that document. If you are interested in performing a similar analysis, the data frame can now be transformed in a number of ways. You can use the unnest_tokens() function from the tidytext package to extract tokens (words, groups of words, paragraphs, etc.) and follow perform sentiment analysis, or you could make a term-document matrix and perform topic modeling. We will do both here, but let's begin by taking a look at the dataset.
 
-```{r, echo = TRUE}
+```{r, echo = TRUE, include = TRUE}
 
 knitr::kable(documents)
 
