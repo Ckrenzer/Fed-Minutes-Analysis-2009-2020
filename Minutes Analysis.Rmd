@@ -70,7 +70,7 @@ library(rvest)
 
 Since I started this process using the pdf files, I will use their file names to determine the corresponding url. If I had started mining this data from HTML in the first place, I might have come up with a more elegant solution, but downloading all the PDF files and using their names to put together urls works fine enough...
 
-There are two formats for the HTML file--those the Fed released before 2012 and those released after. Therefore, two functions are used to read in the different formats.
+There are two formats for the HTML file--those the Fed released before 2012 and those released after. Therefore, two functions are used to read in the different formats. The doucments are read in chronological order, but they are arranged after being added to the tibble if something were to happen to the order of the files in the "Fed Minutes Releases" folder from which these names were pulled.
 ```{r, echo = TRUE}
 # The functions to read in and clean the documents:
 # For the Pre-2012 releases
@@ -160,6 +160,9 @@ for(i in stringr::str_remove_all(list.files(dirs[2:3]), "\\.pdf")){
   cat(".")
 }
 
+# Arranging the documents in chronological order
+documents <- arrange(documents, doc_id)
+
 ```
 
 ## The Dataset
@@ -167,12 +170,9 @@ The data is almost ready for analysis--we have two columns: one for the document
 
 ```{r, echo = TRUE, include = TRUE}
 
-knitr::kable(documents)
+knitr::kable(tibble(doc_id = documents$doc_id[1], text = str_sub(documents$text[1], end = 510)))
 
 ```
 
 
-As we can see...
-
-
-
+The table above shows an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words are concatenated together, such as "mattersby" (which is actually written "matters by" in the document itself). No algorithm is perfect, but you can see that these types of errors are infrequent and therefore unlikely to skew the results of the analysis.
