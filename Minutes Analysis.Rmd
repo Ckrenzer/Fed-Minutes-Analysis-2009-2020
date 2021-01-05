@@ -45,7 +45,7 @@ I recommend pulling the information using the HTML version of these meetings. Th
 
 ```{r, echo = TRUE}
 if(!require(pacman)) install.packages("pacman")
-pacman::p_load(tidytext, dplyr, stringr, rvest)
+pacman::p_load(tidytext, dplyr, stringr)
 
 ```
 
@@ -65,9 +65,9 @@ old_format <- function(id){
                 id,
                 ".htm")
   
-  tibble(doc_id = id, text = read_html(name) %>% 
-           html_nodes("#leftText") %>% 
-           html_text() %>% 
+  tibble(doc_id = id, text = rvest::read_html(name) %>% 
+           rvest::html_nodes("#leftText") %>% 
+           rvest::html_text() %>% 
            str_split("\n", simplify = T) %>% 
            as.vector() %>% 
            magrittr::extract(38:length(.)) %>% 
@@ -92,9 +92,9 @@ new_format <- function(id){
                 id,
                 ".htm")
   
-  tibble(doc_id = id, text = read_html(name) %>% 
-           html_nodes("p") %>% 
-           html_text() %>% 
+  tibble(doc_id = id, text = rvest::read_html(name) %>% 
+           rvest::html_nodes("p") %>% 
+           rvest::html_text() %>% 
            str_trim() %>% 
            str_squish() %>% 
            magrittr::extract(38:length(.)) %>% 
