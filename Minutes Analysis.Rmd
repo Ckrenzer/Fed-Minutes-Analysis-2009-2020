@@ -53,14 +53,15 @@ if(!"stringr" %in% package_names) install.packages("stringr")
 if(!"tidytext" %in% package_names) install.packages("tidytext")
 if(!"rvest" %in% package_names) install.packages("rvest")
 if(!"tidyr" %in% package_names) install.packages("tidyr")
+if(!"ggplot2" %in% package_names) install.packages("ggplot2")
 
 # Loading in dplyr because it is used too often
 # to :: it the entire time
 library(dplyr)
 
-# Loading in rvest because read_html() cannot
-# be ::'ed in
+# Packages which are difficult to use without loading:
 library(rvest)
+library(ggplot2)
 
 
 ```
@@ -164,8 +165,9 @@ documents <- arrange(documents, doc_id)
 ```
 
 ## The Dataset
-The data is almost ready for analysis--we have two columns: one for the document name, and another for the contents of that document. If you are interested in performing a similar analysis, the data frame can now be transformed in a number of ways. You can use the unnest_tokens() function from the tidytext package to extract tokens (words, groups of words, paragraphs, etc.) and follow perform sentiment analysis, or you could make a term-document matrix and perform topic modeling. We will do both, but let's begin by taking a look at the dataset.
+The data is almost ready for analysis--we have two columns: one for the document name, and another for the contents of that document. If you are interested in performing a similar analysis, the data frame can now be transformed in a number of ways. You can use the unnest_tokens() function from the tidytext package to extract tokens (words, groups of words, paragraphs, etc.) and follow perform sentiment analysis, or you could make a term-document matrix and perform topic modeling.
 
+We will do both, but let's begin by taking a look at the dataset:
 ```{r, echo = FALSE, include = TRUE, results = "show"}
 
 knitr::kable(tibble("Fed Minutes Text" = stringr::str_sub(documents$text[1], start = 8602, end = 9075)))
@@ -173,13 +175,41 @@ knitr::kable(tibble("Fed Minutes Text" = stringr::str_sub(documents$text[1], sta
 ```
 
 
-The table above shows an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words have parsing irregularities, such as the lack of space between characters on the parentheses surrounding "millions of dollars equivalent." This section of text was chosen to represent the 'worst-case-scenario' for parsing these texts. No algorithm is perfect, but one can see these errors are infrequent and therefore unlikely to heavily skew the results of the analysis. This code in this particular section represents a table detailing the relations with the Bank of Canada and the Bank of Mexico--tables do not parse well into large documents.
+The table above shows an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words have parsing irregularities, such as the lack of space between characters on the parentheses surrounding "millions of dollars equivalent." This section of text was chosen to represent the 'worst-case-scenario' for parsing these texts. No algorithm is perfect, but one can see these errors are infrequent and therefore unlikely to heavily skew the results of the analysis. The text in this excerpt represents a table detailing the relations with the Bank of Canada and the Bank of Mexico--tables typically have issues parsing.
 
 $~$
 
-Since the data is 
+A great place to start any textual analysis is with word counts.
+
+
+
+## Common Words
+
+Brian F. Madigan is the Secretary who writes all these meetings--he has been the secretary for at least the last 11 years! In a way, we are exploring one man's work over the course of a decade...
+
+After removing 'stop words' (Ex. "the," "of," "a," "to," etc.), those words that are extremely common and provide very little meaning, which words does Brian use most frequently?
+```{r, echo = FALSE, results = "show"}
+
+  documents %>% 
+    tidytext::unnest_tokens(word, text) %>% 
+    count(word, sort = T) %>% 
+    anti_join(tidytext::stop_words) %>% 
+    ggplot(aes(x = reorder(word), n), color = word) +
+    geom_col(show.legend = F) +
+    coord_flip()
+    
+
+
+
+
+```
+
 
 ## Sentiment Analysis
+
+
+add a nice transition, too.
+
 
 this is the cool part---you break the terms into their ngrams, then plot them over time!
 
