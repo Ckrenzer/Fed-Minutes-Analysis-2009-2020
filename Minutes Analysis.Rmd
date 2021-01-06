@@ -205,7 +205,9 @@ unigram_counts <- documents %>%
   geom_col(show.legend = F) +
   xlab("word") +
   ylab("number of occurrences") +
-  coord_flip()
+  ggtitle("Word Counts Across All Documents") +
+  coord_flip() +
+  theme_bw()
 
 ```
 
