@@ -172,10 +172,22 @@ knitr::kable(tibble("Fed Minutes Text" = stringr::str_sub(documents$text[1], sta
 ```
 
 
-The table above shows an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words have parsing irregularities, such as the lack of space between characters on the parentheses surrounding "millions of dollars equivalent." No algorithm is perfect, but one can see these errors are infrequent and therefore unlikely to heavily skew the results of the analysis. This code in this particular section represents a table detailing the relations with the Bank of Canada and the Bank of Mexico--tables do not parse well into large documents.
+The table above shows an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words have parsing irregularities, such as the lack of space between characters on the parentheses surrounding "millions of dollars equivalent." This section of text was chosen to represent the 'worst-case-scenario' for parsing these texts. No algorithm is perfect, but one can see these errors are infrequent and therefore unlikely to heavily skew the results of the analysis. This code in this particular section represents a table detailing the relations with the Bank of Canada and the Bank of Mexico--tables do not parse well into large documents.
+
+$~$
+
+Since the data is 
+
+## Sentiment Analysis
+
+this is the cool part---you break the terms into their ngrams, then plot them over time!
+
+you can simply use parse_number() to retrieve the dates
 
 
 
+
+The loughran sentiment lexicon can be used to analyze this data. An ngram approach will be used because many terms will be negated
 
 
 
