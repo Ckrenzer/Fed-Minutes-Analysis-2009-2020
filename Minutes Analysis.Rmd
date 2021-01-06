@@ -7,7 +7,7 @@ output:
   html_document: default
 ---
 ## Introduction
-The Federal Reserve is the central bank of the United States. Central banks conduct a country's monetary policy (policy pertaining to money--interest rates, regulation of the banking sector, etc.) in the aims of achieving it's 'dual mandate' of full employment (loosely defined as "anyone who wants a job can get a job") and price stability (predictable price changes throughout the United States as a whole). You can read more about what the Fed is and what they do [on their website](https://www.federalreserve.gov/faqs/about_12594.htm). For all of you Fed haters out there, perhaps [one of these articles](https://mises.org/topics/fed) aligns more closely with your views.
+The Federal Reserve is the central bank of the United States. Central banks conduct a country's monetary policy (policy pertaining to money--interest rates, regulation of the banking sector, etc.) in the aims of achieving it's 'dual mandate' of full employment (loosely defined as "anyone who wants a job can get a job") and price stability (predictable price changes throughout the United States as a whole). You can read more about what the Fed is and what they do [on their website](https://www.federalreserve.gov/faqs/about_12594.htm). For all of you Fed haters out there, thinking that I'm misleading people by linking to the Fed's website, do not disparage! Perhaps [one of these articles](https://mises.org/topics/fed) is more your style.
 
 
 
@@ -41,7 +41,7 @@ knitr::opts_chunk$set(echo = FALSE,
 
 Note that I am using the pacman package here, because it incorporates both the installation and loading of packages quite nicely.
 
-I recommend pulling the information using the HTML version of these meetings. The PDFs are a nightmare to clean (speaking from experience)! If you do decide to read the pdf text into R, I suggest using the extract_text() function from the tabulizer package because it is smart enough to recognize columns of selectable PDF text. Other popular packages for reading in PDFs, such as readtext or pdftools, will only read across the page left to right, then down--despite the pages containing two columns.
+I recommend pulling the information using the HTML version of these meetings. The PDFs are a nightmare to clean (speaking from experience)! If you do decide to read the pdf text into R, I suggest using the extract_text() function from the tabulizer package because it is smart enough to recognize columns of selectable PDF text. Other popular packages for reading in PDFs, such as readtext or pdftools, will only read across the page left to right, then down--despite the pages containing two separate columns of text.
 
 ```{r, echo = TRUE}
 # The names of all your installed packages
@@ -68,9 +68,9 @@ library(ggplot2)
 
 ## Data Import
 
-Since I started this process using the pdf files, I will use their file names to determine the corresponding url. If I had started mining this data from HTML in the first place, I might have come up with a more elegant solution, but downloading all the PDF files and using their names to put together urls works fine enough...
+Since I started this process using the pdf files, I will use their file names to determine the corresponding url. If I had started mining this data from HTML in the first place, a more elegant solution might have been used, but downloading all the PDF files and using their names to put together urls works fine enough...
 
-There are two formats for the HTML file--one for the Fed Minutes before 2012 and those released on or after. Therefore, two functions are used to read in the different formats. The doucments are read in chronological order, but they are arranged after being added to the tibble if something were to happen to the order of the files in the "Fed Minutes Releases" folder from which these names were pulled.
+There are two formats for the HTML file--one for the Fed Minutes before 2012 and those released on or after that year. With this in mind, two functions will be used to read in the different formats. The documents are parsed in chronological order but are also arranged after being added to the tibble, in the event that something were to happen to the order of the files in the "Fed Minutes Releases" folder from which these names were pulled.
 ```{r, echo = TRUE}
 old_format <- function(id){
   
