@@ -211,7 +211,7 @@ unigram_counts <- documents %>%
 
 ```
 
-These are words one expects to find in official banking documents. The terms "committee," "inflation," and "market" dominate the content of the phrasing. Still, though, many of these words are simply generic banking lingo we cannot derive much meaning from.
+These are words one expects to find in official banking documents; the terms "committee," "inflation," and "market" dominate the content of the phrasing. This may be useful for some people, but most of these terms are uninteresting finds. Much of what Brian wrote is generic banking lingo we cannot derive much meaning from.
 
 To extract words that have more significance in each document, we can add a weighting factor to the terms with the tf-idf statistic.
 
@@ -227,7 +227,7 @@ To extract words that have more significance in each document, we can add a weig
 The tf-idf statistic is designed to reduce the importance of words that occur often across documents. The math behind it is based on the natural logarithm. It is the product of the 'term frequency' and 'inverse document frequency':
 
 *Term Frequency = (# of Occurrences in Document) / (# of Unique Words in Document)*
-*Inverse Document Frequency = (Total Number of Docs in Corpus) / (# of Docs where Term Appears)*
+*Inverse Document Frequency = (Total # of Docs in Corpus) / (# of Docs where Term Appears)*
 Therefore...
 *tf-df = (tf * idf)*
 
