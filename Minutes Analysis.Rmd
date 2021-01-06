@@ -188,22 +188,46 @@ A great place to start any textual analysis is with word counts.
 Brian F. Madigan is the Secretary who writes all these meetings--he has been the secretary for at least the last 11 years! In a way, we are exploring one man's work over the course of a decade...
 
 After removing 'stop words' (Ex. "the," "of," "a," "to," etc.), those words that are extremely common and provide very little meaning, which words does Brian use most frequently?
-```{r, echo = FALSE, results = "show"}
-
-  documents %>% 
+```{r, echo = FALSE}
+unigram_counts <- documents %>% 
     tidytext::unnest_tokens(word, text) %>% 
     count(word, sort = T) %>% 
-    anti_join(tidytext::stop_words) %>% 
-    ggplot(aes(x = reorder(word), n), color = word) +
-    geom_col(show.legend = F) +
-    coord_flip()
-    
+    anti_join(tidytext::stop_words)
+
+``` 
 
 
+ 
+```{r, echo = FALSE, results = "show"}
 
+  head(unigram_counts, 10) %>% 
+    ggplot(aes(x = reorder(word, n), n, fill = n)) +
+  geom_col(show.legend = F) +
+  xlab("word") +
+  ylab("number of occurrences") +
+  coord_flip()
 
 ```
 
+These are words one expects to find in official banking documents. The terms "committee," "inflation," and "market" dominate the content of the phrasing. Still, though, many of these words are simply generic banking lingo we cannot derive much meaning from.
+
+To extract words that have more significance in each document, we can instead use the tf-idf statistic.
+
+
+## TF-IDF
+
+
+
+## REPEAT THE PREVIOUS TWO SECTIONS WITH NGRAMS!!!
+
+
+
+## Change Over Time
+find the number of occurrences of these words in each document over time. Does it change? This would be a line chart.
+
+
+
+As we can see, ... changes with time. Can we use sentiment analysis to validate these findings further?
 
 ## Sentiment Analysis
 
@@ -235,7 +259,6 @@ The loughran sentiment lexicon can be used to analyze this data. An ngram approa
 
 
 ```
-
 
 
 
