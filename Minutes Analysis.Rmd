@@ -23,7 +23,7 @@ The data in this analysis includes all FOMC Minutes between January 28th, 2009 t
 
 $~$
 
-I will explore these texts using various text mining approaches including sentiment analysis, tf-idf (term frequency * inverse document frequency), and topic modeling.
+I will explore these texts using various text mining approaches including sentiment analysis, tf-idf, and topic modeling.
 
 
 Should you want to try running this code on your own computer, know that it will take more than a few hours to run! Instead, I suggest you run the code using a small sample of documents.
@@ -70,7 +70,7 @@ library(ggplot2)
 
 Since I started this process using the pdf files, I will use their file names to determine the corresponding url. If I had started mining this data from HTML in the first place, I might have come up with a more elegant solution, but downloading all the PDF files and using their names to put together urls works fine enough...
 
-There are two formats for the HTML file--those the Fed released before 2012 and those released after. Therefore, two functions are used to read in the different formats. The doucments are read in chronological order, but they are arranged after being added to the tibble if something were to happen to the order of the files in the "Fed Minutes Releases" folder from which these names were pulled.
+There are two formats for the HTML file--one for the Fed Minutes before 2012 and those released on or after. Therefore, two functions are used to read in the different formats. The doucments are read in chronological order, but they are arranged after being added to the tibble if something were to happen to the order of the files in the "Fed Minutes Releases" folder from which these names were pulled.
 ```{r, echo = TRUE}
 old_format <- function(id){
   
@@ -187,7 +187,7 @@ A great place to start any textual analysis is with word counts.
 
 Brian F. Madigan is the Secretary who writes all these meetings--he has been the secretary for at least the last 11 years! In a way, we are exploring one man's work over the course of a decade...
 
-After removing 'stop words' (Ex. "the," "of," "a," "to," etc.), those words that are extremely common and provide very little meaning, which words does Brian use most frequently?
+After removing 'stop words'--those words that are extremely common and provide very little meaning (Ex. "the," "of," "a," "to," etc.)--which words does Brian use most frequently?
 ```{r, echo = FALSE}
 unigram_counts <- documents %>% 
     tidytext::unnest_tokens(word, text) %>% 
@@ -211,14 +211,37 @@ unigram_counts <- documents %>%
 
 These are words one expects to find in official banking documents. The terms "committee," "inflation," and "market" dominate the content of the phrasing. Still, though, many of these words are simply generic banking lingo we cannot derive much meaning from.
 
-To extract words that have more significance in each document, we can instead use the tf-idf statistic.
+To extract words that have more significance in each document, we can add a weighting factor to the terms with the tf-idf statistic.
 
 
 ## TF-IDF
 
+The tf-idf statistic is designed to reduce the importance of words that occur often across documents. The math behind it is based on the natural logarithm. It is the product of the 'term frequency' and 'inverse document frequency':
+
+Term Frequency = (# of Occurrences in Document) / (# of Unique Words in Document)
+Inverse Document Frequency = (Total Number of Docs in Corpus) / (# of Docs where Term Appears)
+
+Therfore...
+
+#### tf-df = (tf * idf)
+
+
+
+
+
+
+
 
 
 ## REPEAT THE PREVIOUS TWO SECTIONS WITH NGRAMS!!!
+
+
+
+
+
+
+
+
 
 
 
@@ -228,6 +251,16 @@ find the number of occurrences of these words in each document over time. Does i
 
 
 As we can see, ... changes with time. Can we use sentiment analysis to validate these findings further?
+
+
+
+
+
+
+
+
+
+
 
 ## Sentiment Analysis
 
