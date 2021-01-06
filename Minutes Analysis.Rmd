@@ -52,6 +52,7 @@ if(!"dplyr" %in% package_names) install.packages("dplyr")
 if(!"stringr" %in% package_names) install.packages("stringr")
 if(!"tidytext" %in% package_names) install.packages("tidytext")
 if(!"rvest" %in% package_names) install.packages("rvest")
+if(!"tidyr" %in% package_names) install.packages("tidyr")
 
 # Loading in dplyr because it is used too often
 # to :: it the entire time
