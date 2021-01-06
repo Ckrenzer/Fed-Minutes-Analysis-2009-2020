@@ -184,6 +184,10 @@ this is the cool part---you break the terms into their ngrams, then plot them ov
 
 you can simply use parse_number() to retrieve the dates
 
+Talk about the packages, sentiment lexicons, why some are more suited for certain cases than others, etc.
+
+Your readthrough notes say "n-grams are good because they provide context and let you adjust for negation words, but their downside is that the number of observations decreases significantly"--->They're better suited for large documents (which suits this project perfectly)
+
 
 
 
