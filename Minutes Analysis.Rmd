@@ -216,16 +216,20 @@ These are words one expects to find in official banking documents. The terms "co
 To extract words that have more significance in each document, we can add a weighting factor to the terms with the tf-idf statistic.
 
 
+
+
+
+
+
+
 ## TF-IDF
 
 The tf-idf statistic is designed to reduce the importance of words that occur often across documents. The math behind it is based on the natural logarithm. It is the product of the 'term frequency' and 'inverse document frequency':
 
-Term Frequency = (# of Occurrences in Document) / (# of Unique Words in Document)
-Inverse Document Frequency = (Total Number of Docs in Corpus) / (# of Docs where Term Appears)
-
-Therfore...
-
-#### tf-df = (tf * idf)
+*Term Frequency = (# of Occurrences in Document) / (# of Unique Words in Document)*
+*Inverse Document Frequency = (Total Number of Docs in Corpus) / (# of Docs where Term Appears)*
+Therefore...
+*tf-df = (tf * idf)*
 
 
 
