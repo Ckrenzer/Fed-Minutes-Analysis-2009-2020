@@ -211,7 +211,7 @@ unigram_counts <- documents %>%
 
 ```
 
-These are words one expects to find in official banking documents; the terms "committee," "inflation," and "market" dominate the content of the phrasing. This may be useful for some people, but most of these terms are uninteresting finds. Much of what Brian wrote is generic banking lingo we cannot derive much meaning from.
+These are words one expects to find in official banking documents; the terms "committee," "inflation," and "market" dominate the content of the phrasing. This may be useful for some people, but most of these terms are uninteresting finds. Much of what Brian wrote is generic banking lingo from which we cannot derive much meaning.
 
 To extract words that have more significance in each document, we can add a weighting factor to the terms with the tf-idf statistic.
 
@@ -239,7 +239,33 @@ Therefore...
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## REPEAT THE PREVIOUS TWO SECTIONS WITH NGRAMS!!!
+
+
+
+
+
+
+
+
+
+
+
 
 
 
