@@ -84,7 +84,7 @@ old_format <- function(id){
            stringr::str_split("\n", simplify = T) %>% 
            as.vector() %>% 
            stringr::str_to_lower() %>% 
-           stringr::str_replace_all("'s|s'|\"|,|:|;|-{2,}", " ") %>% 
+           stringr::str_replace_all("'s|\"|,|:|;|-{2,}", " ") %>% 
            magrittr::extract(!stringr::str_detect(., "_+")) %>%  # removing the signature
            stringr::str_c(., collapse = " ") %>%
            stringr::str_replace_all("mr\\.{1}|mrs\\.{1}|ms\\.{1}", " ") %>% 
@@ -114,7 +114,7 @@ new_format <- function(id){
            magrittr::extract(38:length(.)) %>% 
            magrittr::extract(!stringr::str_detect(., "_+")) %>%  # removing the signature
            stringr::str_to_lower() %>% 
-           stringr::str_replace_all("'s|s'|\"|,|:|;|-{2,}", " ") %>% 
+           stringr::str_replace_all("'s|\"|,|:|;|-{2,}", " ") %>% 
            stringr::str_c(., collapse = " ") %>%
            stringr::str_replace_all("mr\\.{1}|mrs\\.{1}|ms\\.{1}", " ") %>%
            stringr::str_replace_all("\\d", " ") %>% 
@@ -170,7 +170,7 @@ The data is almost ready for analysis. We now have two columns: one for the docu
 We will do both, but let's begin by taking a look at the dataset:
 ```{r, echo = FALSE, include = TRUE, results = "show"}
 
-knitr::kable(tibble("Fed Minutes Text" = stringr::str_sub(documents$text[1], start = 8113, end = 8903)))
+knitr::kable(tibble("Fed Minutes Text" = stringr::str_sub(documents$text[1], start = 8489, end = 8802)))
 
 ```
 
@@ -188,18 +188,18 @@ A great place to start any textual analysis is with word counts.
 Brian F. Madigan is the Secretary who writes all these meetings--he has been the secretary for at least the last 11 years! In a way, we are exploring one man's work over the course of a decade...
 
 After removing 'stop words'--those words that are extremely common and provide very little meaning (Ex. "the," "of," "a," "to," etc.)--which words does Brian use most frequently?
+
 ```{r, echo = FALSE, results = "show"}
 unigram_unnested_documents <- documents %>% 
-  tidytext::unnest_tokens(word, text) %>% 
-  anti_join(tidytext::stop_words)
+  tidytext::unnest_tokens(word, text)
 
 
 
-  head(unigram_unnested_documents %>% 
-    count(word, sort = T), 10) %>% 
-    ggplot(aes(x = reorder(word, n), n, fill = n)) +
+head(unigram_unnested_documents %>% 
+       anti_join(tidytext::stop_words) %>% 
+       count(word, sort = T), 10) %>% 
+  ggplot(aes(x = reorder(word, n), n, fill = n)) +
   geom_col(show.legend = F) +
-  xlab("word") +
   ylab("number of occurrences") +
   ggtitle("Word Counts Across All Documents") +
   coord_flip() +
@@ -232,14 +232,14 @@ __tf-df = (tf * idf)__
 
 $~$
 
-Let's see which words are most important among all Fed Minutes releases, as measured by the tf-idf
+Let's see which words are most important among all Fed Minutes releases, as measured by the tf-idf:
 ```{r echo = FALSE, results = "show"}
 
-unigram_unnested_documents %>% 
-  count(doc_id, word, sort = T) %>%
-  anti_join(tidytext::stop_words) %>% 
-  tidytext::bind_tf_idf(doc_id, word, n) %>% 
-  arrange(desc(tf_idf))
+knitr::kable(head(unigram_unnested_documents %>% 
+                    count(doc_id, word, sort = T) %>%
+                    ungroup() %>% 
+                    tidytext::bind_tf_idf(word, doc_id, n) %>% 
+                    arrange(desc(tf_idf)), 10))
 
 ```
 
@@ -263,7 +263,7 @@ unigram_unnested_documents %>%
 
 
 
-## REPEAT THE PREVIOUS TWO SECTIONS WITH NGRAMS!!!
+## REPEAT THE PREVIOUS TWO SECTIONS WITH NGRAMS!!! Also give the tables titles--and make them look better!
 
 
 
