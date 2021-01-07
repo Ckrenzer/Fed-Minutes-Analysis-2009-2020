@@ -291,9 +291,33 @@ Clearly, then, we can see the value brought from this statistic. It allows us to
 
 ## Change Over Time
 
-We can use the information from the 
+We can use the information from the tf-idf to identify changes in a term's use over time, using an index with the first observation
+
+```{r, echo = FALSE, results = "show"}
 
 
+change_over_time <- function(data, word1, word2, graph_title){
+
+data %>% 
+  count(doc_id, word) %>% 
+  ungroup() %>% 
+  filter(word %in% c(word1, word2)) %>% 
+  mutate(doc_id = lubridate::as_date(stringr::str_sub(doc_id, start = 12))) %>% 
+  tidyr::pivot_wider(names_from = word, values_from = n) %>% 
+  ggplot(aes(x = doc_id)) +
+  geom_line(aes(y = word1), show.legend = T) +
+  geom_line(aes(y = word2, show.legend = F)) +
+  xlab("FOMC Meetings") +
+  ylab("# of Uses in Minutes Releases") +
+  ggtitle(graph_title)
+
+}
+
+
+change_over_time(unigram_unnested_documents, "inflation", "unemployment")
+
+  
+```
 
 
 TASKS:
@@ -365,9 +389,9 @@ Also give the tables titles--and make them look better!
 
 
 
+## Markov Chains
 
-
-
+Make Markov chains with your n-grams
 
 
 
