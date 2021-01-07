@@ -168,14 +168,12 @@ documents <- arrange(documents, doc_id)
 The data is almost ready for analysis. We now have two columns: one for the document name, and another for the contents of that document. If you are interested in performing a similar analysis, the data frame can now be transformed in a number of ways. You can use the unnest_tokens() function from the tidytext package to extract tokens (words, groups of words, paragraphs, etc.) and perform sentiment analysis, or you could make a term-document matrix and perform topic modeling.
 
 We will do both, but let's begin by taking a look at the dataset:
-```{r, echo = FALSE, include = TRUE, results = "show"}
-
-knitr::kable(tibble("Fed Minutes Text" = stringr::str_sub(documents$text[1], start = 8489, end = 8802)))
-
-```
 
 
-The table above shows an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words have parsing irregularities, such as the lack of space between characters on the parentheses surrounding "millions of dollars equivalent." This section of text was chosen to represent the 'worst-case-scenario' for parsing these texts. No algorithm is perfect, but one can see these errors are infrequent and therefore unlikely to heavily skew the results of the analysis. The text in this excerpt represents a table detailing the relations with the Bank of Canada and the Bank of Mexico--tables typically have issues parsing.
+> `r stringr::str_sub(documents$text[1], start = 8489, end = 8802)`
+
+
+The quote above is an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words have parsing irregularities, such as the lack of space between characters on the parentheses surrounding "millions of dollars equivalent." This section of text was chosen to represent the 'worst-case-scenario' for parsing these texts. No algorithm is perfect, but one can see these errors are infrequent and therefore unlikely to heavily skew the results of the analysis. The text details the relations with the Bank of Canada and the Bank of Mexico--tables typically have issues parsing.
 
 $~$
 
@@ -244,7 +242,7 @@ knitr::kable(head(unigram_unnested_documents %>%
 ```
 
 
-I'm tired of seeing those words everywhere. The correct interpretation of this table, however, is that the words "pandemic," "coronavirus," and "outbreak" are the most important terms, as determined by the tf-idf. Let's filter out the words "pandemic," "coronavirus," "virus," and "outbreak" to see what else tf-idf deems important. Since we all know when hurricane season rolls around, I will remove the term "hurricane" as well. Finally, after some inspection, I will filter out the names of the months, "shall," and "our."
+I'm tired of seeing those words everywhere. The correct interpretation of this table, however, is that the words "pandemic," "coronavirus," and "outbreak" are the most important terms, as determined by the tf-idf. Let's filter out the words "pandemic," "coronavirus," "virus," and "outbreak" to see what else tf-idf deems important. Since we all know when hurricane season rolls around, let's remove the term "hurricane" as well. Finally, after some inspection, the names of the months, "shall," and "our" should also be filtered out.
 
 Let's see a plot of these terms after removing these terms:
 
@@ -267,8 +265,6 @@ unigram_unnested_documents %>%
   ggtitle("TF-IDF Statistic for Fed Minutes") +
   coord_flip() +
   theme_bw()
-
-
 
 ```
 
