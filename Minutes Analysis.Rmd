@@ -168,7 +168,7 @@ The data is almost ready for analysis. We now have two columns: one for the docu
 We will do both, but let's begin by taking a look at the dataset:
 ```{r, echo = FALSE, include = TRUE, results = "show"}
 
-knitr::kable(tibble("Fed Minutes Text" = stringr::str_sub(documents$text[1], start = 8602, end = 9075)))
+knitr::kable(tibble("Fed Minutes Text" = stringr::str_sub(documents$text[1], start = 8113, end = 8903)))
 
 ```
 
