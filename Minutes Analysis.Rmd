@@ -147,7 +147,7 @@ documents <- tibble::tibble(doc_id = NULL, text = NULL)
 for(i in stringr::str_remove_all(list.files(dirs[1]), "\\.pdf")){
   documents <- bind_rows(documents, old_format(i))
   
-  # simple, yet effective way of showing the operation's progress
+  # simple yet effective way of showing the operation's progress
   cat(".")
 }
 
@@ -155,7 +155,7 @@ for(i in stringr::str_remove_all(list.files(dirs[1]), "\\.pdf")){
 for(i in stringr::str_remove_all(list.files(dirs[2:3]), "\\.pdf")){
   documents <- bind_rows(documents, new_format(i))
   
-  # simple, yet effective way of showing the operation's progress
+  # simple yet effective way of showing the operation's progress
   cat(".")
 }
 
@@ -398,6 +398,17 @@ Your readthrough notes say "n-grams are good because they provide context and le
 The loughran sentiment lexicon can be used to analyze this data. An ngram approach will be used because many terms will be negated
 
 
+
+
+
+
+
+
+
+
+
+
+## Topic Modeling
 
 
 ```{r,echo=F}
