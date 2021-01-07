@@ -290,6 +290,20 @@ Clearly, then, we can see the value brought from this statistic. It allows us to
 
 
 ## Change Over Time
+
+We can use the information from the 
+
+
+
+
+TASKS:
+1. parse the date from the doc_id column
+2. Use line graphs to plot usage of various words over time (Ex. inflation and unemployment, or some other interesting plots)
+
+
+
+
+
 find the number of occurrences of these words in each document over time. Does it change? This would be a line chart.
 
 
