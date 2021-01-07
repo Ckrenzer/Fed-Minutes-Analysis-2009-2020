@@ -301,7 +301,8 @@ change_over_time <- function(data, word1, word2, graph_title){
                        stringr::str_to_title(word1),
                        " vs. ",
                        stringr::str_to_title(word2),
-                       " Over Time")
+                       " Over Time",
+                       sep = "")
   
 data %>% 
   count(doc_id, word) %>% 
