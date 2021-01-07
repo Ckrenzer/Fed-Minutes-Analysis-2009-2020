@@ -87,7 +87,8 @@ old_format <- function(id){
            stringr::str_replace_all("'s|s'|\"|,|:|;|-{2,}", " ") %>% 
            magrittr::extract(!stringr::str_detect(., "_+")) %>%  # removing the signature
            stringr::str_c(., collapse = " ") %>%
-           stringr::str_remove_all("mr\\.{1}|mrs\\.{1}|ms\\.{1}") %>% 
+           stringr::str_replace_all("mr\\.{1}|mrs\\.{1}|ms\\.{1}", " ") %>% 
+           stringr::str_replace_all("\\d", " ") %>% 
            stringr::str_squish() %>% 
            stringr::str_remove_all("return to text[\\d]*|return to top") %>% 
            stringr::str_trim()
@@ -113,11 +114,12 @@ new_format <- function(id){
            magrittr::extract(38:length(.)) %>% 
            magrittr::extract(!stringr::str_detect(., "_+")) %>%  # removing the signature
            stringr::str_to_lower() %>% 
-           stringr::str_remove_all("'s|s'|\"|,|:|;|-{2,}") %>% 
+           stringr::str_replace_all("'s|s'|\"|,|:|;|-{2,}", " ") %>% 
            stringr::str_c(., collapse = " ") %>%
-           stringr::str_remove_all("mr\\.{1}|mrs\\.{1}|ms\\.{1}") %>%
+           stringr::str_replace_all("mr\\.{1}|mrs\\.{1}|ms\\.{1}", " ") %>%
+           stringr::str_replace_all("\\d", " ") %>% 
            stringr::str_squish() %>% 
-           stringr::str_remove_all("return to text[\\d]*|return to top") %>% 
+           stringr::str_replace_all("return to text[\\d]*|return to top", " ") %>% 
            stringr::str_trim()
   ) %>% 
     return()
@@ -186,19 +188,15 @@ A great place to start any textual analysis is with word counts.
 Brian F. Madigan is the Secretary who writes all these meetings--he has been the secretary for at least the last 11 years! In a way, we are exploring one man's work over the course of a decade...
 
 After removing 'stop words'--those words that are extremely common and provide very little meaning (Ex. "the," "of," "a," "to," etc.)--which words does Brian use most frequently?
-```{r, echo = FALSE}
-unigram_counts_pooled <- documents %>% 
-    tidytext::unnest_tokens(word, text) %>% 
-    count(word, sort = T) %>% 
-    anti_join(tidytext::stop_words)
-
-``` 
-
-
- 
 ```{r, echo = FALSE, results = "show"}
+unigram_unnested_documents <- documents %>% 
+  tidytext::unnest_tokens(word, text) %>% 
+  anti_join(tidytext::stop_words)
 
-  head(unigram_counts_pooled, 10) %>% 
+
+
+  head(unigram_unnested_documents %>% 
+    count(word, sort = T), 10) %>% 
     ggplot(aes(x = reorder(word, n), n, fill = n)) +
   geom_col(show.legend = F) +
   xlab("word") +
@@ -232,7 +230,18 @@ Therefore...
 __tf-df = (tf * idf)__
 
 
+$~$
 
+Let's see which words are most important among all Fed Minutes releases, as measured by the tf-idf
+```{r echo = FALSE, results = "show"}
+
+unigram_unnested_documents %>% 
+  count(doc_id, word, sort = T) %>%
+  anti_join(tidytext::stop_words) %>% 
+  tidytext::bind_tf_idf(doc_id, word, n) %>% 
+  arrange(desc(tf_idf))
+
+```
 
 
 
@@ -332,4 +341,21 @@ The loughran sentiment lexicon can be used to analyze this data. An ngram approa
 echo = FALSE hides the code, but will evaluate it and show its output in the knit.
 
 include = FALSE hides the code AND the output from the knit, but will evaluate the code silently.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+throw a cor.test() in there somewhere...
+
 
