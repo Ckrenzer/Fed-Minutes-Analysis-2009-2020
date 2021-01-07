@@ -198,7 +198,7 @@ unigram_unnested_documents <- documents %>%
 head(unigram_unnested_documents %>% 
        anti_join(tidytext::stop_words) %>% 
        count(word, sort = T), 10) %>% 
-  ggplot(aes(x = reorder(word, n), n, fill = n)) +
+  ggplot(aes(x = reorder(word, n), y = n, fill = n)) +
   geom_col(show.legend = F) +
   ylab("number of occurrences") +
   ggtitle("Word Counts Across All Documents") +
@@ -244,18 +244,36 @@ knitr::kable(head(unigram_unnested_documents %>%
 ```
 
 
-I'm tired of seeing those words everywhere. The correct interpretation of this table, however, is that the words "pandemic," "coronavirus," and "outbreak" are the most important terms, as determined by the tf-idf. Let's filter out the words "pandemic," "coronavirus," and "outbreak" to see what else tf-idf deems important. I will also filter out "yet" as I think it is a stop word.
+I'm tired of seeing those words everywhere. The correct interpretation of this table, however, is that the words "pandemic," "coronavirus," and "outbreak" are the most important terms, as determined by the tf-idf. Let's filter out the words "pandemic," "coronavirus," "virus," and "outbreak" to see what else tf-idf deems important. Since we all know when hurricane season rolls around, I will remove the term "hurricane" as well. Finally, after some inspection, I will filter out the names of the months, "shall," and "our."
 
-
+Let's see a plot of these terms after removing these terms:
 
 ```{r echo = FALSE, results = "show"}
+
+unigram_unnested_documents %>% 
+  count(doc_id, word, sort = T) %>%
+  ungroup() %>% 
+  filter(!word %in% c("pandemic", "coronavirus", "virus",
+                      "outbreak", "our", "shall",
+                      "hurricane", "hurricanes",
+                      stringr::str_to_lower(month.name))) %>% 
+  tidytext::bind_tf_idf(word, doc_id, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  slice(1:10) %>% 
+  ggplot(aes(x = reorder(word, tf_idf), y = tf_idf, fill = doc_id)) +
+  geom_col(show.legend = F) +
+  xlab(NULL) +
+  ylab("tf-idf") +
+  ggtitle("TF-IDF Statistic for Fed Minutes") +
+  coord_flip() +
+  theme_bw()
 
 
 
 ```
 
 
-
+Now that's something interesting! The Fed uses many different acronyms to describe its programs. To name a few, "yct" is the "yield control target," talf is short for "term asset-backed securities loan facilities," and "elb" stands for "effective lower bound."
 
 
 
@@ -277,7 +295,7 @@ I'm tired of seeing those words everywhere. The correct interpretation of this t
 
 
 
-
+Talk about how we can use the tf-idf to identify important issues at moments in time at the Fed. In the unigram analysis, for example, the talf is important because of Quantitative Easing. Also, make sure you go through the timeline of the Fed and explain to the audience what this all means.
 
 
 
