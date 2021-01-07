@@ -295,26 +295,35 @@ We can use the information from the tf-idf to identify changes in a term's use o
 
 ```{r, echo = FALSE, results = "show"}
 
-
 change_over_time <- function(data, word1, word2, graph_title){
 
+  graph_title <-  paste("Usage of ",
+                       stringr::str_to_title(word1),
+                       " vs. ",
+                       stringr::str_to_title(word2),
+                       " Over Time")
+  
 data %>% 
   count(doc_id, word) %>% 
   ungroup() %>% 
   filter(word %in% c(word1, word2)) %>% 
   mutate(doc_id = lubridate::as_date(stringr::str_sub(doc_id, start = 12))) %>% 
   tidyr::pivot_wider(names_from = word, values_from = n) %>% 
-  ggplot(aes(x = doc_id)) +
-  geom_line(aes(y = word1), show.legend = T) +
-  geom_line(aes(y = word2, show.legend = F)) +
+  mutate(.[, 2] / unlist(.[49, 2]),
+         .[, 3] / unlist(.[49, 3])) %>% 
+  tidyr::pivot_longer(names_to = "word", values_to = "index", cols = 2:3) %>% 
+  ggplot(aes(x = doc_id, y = index, color = word)) +
+  geom_line(show.legend = T) +
   xlab("FOMC Meetings") +
-  ylab("# of Uses in Minutes Releases") +
+  ylab("Uses in Minutes Releases, Index (Base: 01-28-15)") +
   ggtitle(graph_title)
 
-}
+}#end of change_over_time()
 
 
-change_over_time(unigram_unnested_documents, "inflation", "unemployment")
+change_over_time(data = unigram_unnested_documents,
+                 word1 = "inflation",
+                 word2 = "unemployment")
 
   
 ```
