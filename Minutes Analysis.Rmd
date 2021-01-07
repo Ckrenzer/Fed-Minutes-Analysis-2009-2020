@@ -271,27 +271,11 @@ unigram_unnested_documents %>%
 
 Now that's something interesting! The Fed uses many different acronyms to describe its programs. To name a few, "yct" is the "yield control target," talf is short for "term asset-backed securities loan facilities," and "elb" stands for "effective lower bound."
 
+$~$
 
+You may be wondering how these terms relate to the current events at the time. Yield curve controls (yield curve targets, YCT), for instance, were a hot topic in June 2020, when the Fed was evaluating the experiences central banks across the developed world had with controlling government bond yields in response to the recession. The second phrase, term asset-backed securities loan facilities (talf), was a major policy the Fed pursued in the aftermath of the Great Recession, which is also consistent with these findings.
 
-
-
-
-
-
-
-
-
-## REPEAT THE PREVIOUS TWO SECTIONS WITH NGRAMS!!! Also give the tables titles--and make them look better!
-
-
-
-
-
-
-
-
-
-Talk about how we can use the tf-idf to identify important issues at moments in time at the Fed. In the unigram analysis, for example, the talf is important because of Quantitative Easing. Also, make sure you go through the timeline of the Fed and explain to the audience what this all means.
+Clearly, then, we can see the value brought from this statistic. It allows us to identify important aspects of documents to hone in on topics of interest.
 
 
 
@@ -312,6 +296,62 @@ I think the way to go about this is to count word usage by document, then filter
 
 
 As we can see, ... changes with time. Can we use sentiment analysis to validate these findings further?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## REPEAT THE PREVIOUS THREE SECTIONS WITH NGRAMS!!!
+
+Also give the tables titles--and make them look better!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
