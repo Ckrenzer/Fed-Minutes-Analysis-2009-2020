@@ -232,7 +232,7 @@ __tf-df = (tf * idf)__
 
 $~$
 
-Let's see which words are most important among all Fed Minutes releases, as measured by the tf-idf:
+You can think of tf-idf as a formula that finds terms that occur frequently--but not too frequently. Let's see which words are most important among all Fed Minutes releases, as measured by the tf-idf:
 ```{r echo = FALSE, results = "show"}
 
 knitr::kable(head(unigram_unnested_documents %>% 
@@ -244,11 +244,15 @@ knitr::kable(head(unigram_unnested_documents %>%
 ```
 
 
+I'm tired of seeing those words everywhere. The correct interpretation of this table, however, is that the words "pandemic," "coronavirus," and "outbreak" are the most important terms, as determined by the tf-idf. Let's filter out the words "pandemic," "coronavirus," and "outbreak" to see what else tf-idf deems important. I will also filter out "yet" as I think it is a stop word.
 
 
 
+```{r echo = FALSE, results = "show"}
 
 
+
+```
 
 
 
