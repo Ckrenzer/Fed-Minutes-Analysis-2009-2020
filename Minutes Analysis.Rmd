@@ -288,6 +288,7 @@ Clearly, then, we can see the value brought from this statistic. It allows us to
 
 
 
+
 ## Change Over Time
 find the number of occurrences of these words in each document over time. Does it change? This would be a line chart.
 
