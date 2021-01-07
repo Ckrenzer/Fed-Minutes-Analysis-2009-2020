@@ -39,8 +39,6 @@ knitr::opts_chunk$set(echo = FALSE,
 
 ## Packages
 
-Note that I am using the pacman package here, because it incorporates both the installation and loading of packages quite nicely.
-
 I recommend pulling the information using the HTML version of these meetings. The PDFs are a nightmare to clean (speaking from experience)! If you do decide to read the pdf text into R, I suggest using the extract_text() function from the tabulizer package because it is smart enough to recognize columns of selectable PDF text. Other popular packages for reading in PDFs, such as readtext or pdftools, will only read across the page left to right, then down--despite the pages containing two separate columns of text.
 
 ```{r, echo = TRUE}
@@ -165,7 +163,7 @@ documents <- arrange(documents, doc_id)
 ```
 
 ## The Dataset
-The data is almost ready for analysis--we have two columns: one for the document name, and another for the contents of that document. If you are interested in performing a similar analysis, the data frame can now be transformed in a number of ways. You can use the unnest_tokens() function from the tidytext package to extract tokens (words, groups of words, paragraphs, etc.) and follow perform sentiment analysis, or you could make a term-document matrix and perform topic modeling.
+The data is almost ready for analysis. We now have two columns: one for the document name, and another for the contents of that document. If you are interested in performing a similar analysis, the data frame can now be transformed in a number of ways. You can use the unnest_tokens() function from the tidytext package to extract tokens (words, groups of words, paragraphs, etc.) and perform sentiment analysis, or you could make a term-document matrix and perform topic modeling.
 
 We will do both, but let's begin by taking a look at the dataset:
 ```{r, echo = FALSE, include = TRUE, results = "show"}
@@ -189,7 +187,7 @@ Brian F. Madigan is the Secretary who writes all these meetings--he has been the
 
 After removing 'stop words'--those words that are extremely common and provide very little meaning (Ex. "the," "of," "a," "to," etc.)--which words does Brian use most frequently?
 ```{r, echo = FALSE}
-unigram_counts <- documents %>% 
+unigram_counts_pooled <- documents %>% 
     tidytext::unnest_tokens(word, text) %>% 
     count(word, sort = T) %>% 
     anti_join(tidytext::stop_words)
@@ -200,7 +198,7 @@ unigram_counts <- documents %>%
  
 ```{r, echo = FALSE, results = "show"}
 
-  head(unigram_counts, 10) %>% 
+  head(unigram_counts_pooled, 10) %>% 
     ggplot(aes(x = reorder(word, n), n, fill = n)) +
   geom_col(show.legend = F) +
   xlab("word") +
@@ -211,7 +209,7 @@ unigram_counts <- documents %>%
 
 ```
 
-These are words one expects to find in official banking documents; the terms "committee," "inflation," and "market" dominate the content of the phrasing. This may be useful for some people, but most of these terms are uninteresting finds. Much of what Brian wrote is generic banking lingo from which we cannot derive much meaning.
+These are words one expects to find in official banking documents; the terms "committee," "inflation," and "market" dominate across all `r nrow(documents)` minutes. These words may be insightful for some people, but most people would agree that most of these terms are uninteresting finds. Much of what Brian wrote is generic banking lingo from which we cannot derive much meaning. We can still use these terms to draw interesting conclusions with these terms. We will visualize their usage over time, for example, but we first want to know which terms are unique to different documents.
 
 To extract words that have more significance in each document, we can add a weighting factor to the terms with the tf-idf statistic.
 
@@ -224,12 +222,14 @@ To extract words that have more significance in each document, we can add a weig
 
 ## TF-IDF
 
-The tf-idf statistic is designed to reduce the importance of words that occur often across documents. The math behind it is based on the natural logarithm. It is the product of the 'term frequency' and 'inverse document frequency':
+The tf-idf statistic is designed to reduce the importance of words that occur often across documents. The math behind it is based on the natural logarithm. It is the product of the 'term frequency' and 'inverse document frequency:
 
-*Term Frequency = (# of Occurrences in Document) / (# of Unique Words in Document)*
-*Inverse Document Frequency = (Total # of Docs in Corpus) / (# of Docs where Term Appears)*
+_Term Frequency = (# of Occurrences in Document) / (# of Unique Words in Document)_
+
+_Inverse Document Frequency = ln((Total # of Docs in Corpus) / (# of Docs where Term Appears))_
+
 Therefore...
-*tf-df = (tf * idf)*
+__tf-df = (tf * idf)__
 
 
 
@@ -281,6 +281,8 @@ Therefore...
 find the number of occurrences of these words in each document over time. Does it change? This would be a line chart.
 
 
+I think the way to go about this is to count word usage by document, then filter, then plot..?
+
 
 As we can see, ... changes with time. Can we use sentiment analysis to validate these findings further?
 
@@ -327,5 +329,7 @@ The loughran sentiment lexicon can be used to analyze this data. An ngram approa
 
 
 
+echo = FALSE hides the code, but will evaluate it and show its output in the knit.
 
+include = FALSE hides the code AND the output from the knit, but will evaluate the code silently.
 
