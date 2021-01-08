@@ -374,6 +374,24 @@ bonds$ind <- as.numeric(bonds$ind)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+# YOU FOGOT TO MAKE THE INFLATION MENTIONS AN INDEX!!!! -------------------------------------------------------------
+
+
+
+
 inf_mentions <- unigram_unnested_documents %>% 
   count(doc_id, word) %>% 
   ungroup() %>% 
@@ -385,7 +403,7 @@ inf_mentions <- unigram_unnested_documents %>%
 
 ggplot() +
   geom_line(data = inf_mentions,
-            aes(x = doc_id, y = n, color = "infltn"),
+            aes(x = doc_id, y = n, color = "infl"),
             size = 1.02) +
   geom_line(data = bonds,
             aes(x = date, y = ind, color = "bond"),
@@ -434,7 +452,9 @@ bigram_unnested_documents_filtered <- bigram_unnested_documents %>%
 
 
 
-# This one is best for the upfront bar chart
+
+
+# The bar chart for the bigrams
 bigram_unnested_documents_filtered %>% 
   count(word, sort = TRUE) %>% 
   slice(1:10) %>% 
@@ -452,7 +472,22 @@ bigram_unnested_documents_filtered %>%
 
 # This one is better for plotting with a line graph
 bigram_unnested_documents_filtered %>% 
-  count(doc_id, word, sort = TRUE)
+  count(doc_id, word, sort = TRUE) %>% 
+  filter(word %in% c("financial markets", "labor market")) %>% 
+  mutate(doc_id = lubridate::as_date(stringr::str_sub(doc_id, start = 12))) %>% 
+  tidyr::pivot_wider(names_from = word, values_from = n) %>%
+  mutate(`labor market` = (unlist(.[, 2]) / unlist(.[which(unlist(.$doc_id) == "2017-11-01"), 2])) * 100,
+         `financial markets` = (unlist(.[, 3]) / unlist(.[which(unlist(.$doc_id) == "2017-11-01"), 3])) * 100) %>% 
+  tidyr::pivot_longer(cols = c(`financial markets`, `labor market`), names_to = "word", values_to = "ind") %>% 
+  mutate(word = recode(word,
+                `financial markets` = "finc",
+                `labor market` = "labor")) %>% 
+  ggplot(aes(x = doc_id, y = ind, color = word)) +
+  geom_line(size = 1.02) +
+  xlab("Date") +
+  ylab("Index (Base: Nov 1, 2017)") +
+  ggtitle("FOMC Mentions of \"Financial Markets\" vs. \"Labor Market\"") +
+  theme_bw()
 
 
 
