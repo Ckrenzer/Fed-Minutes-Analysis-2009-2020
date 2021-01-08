@@ -502,7 +502,7 @@ We can extend this line of thinking further with pairings of three words:
 # The trigrams bar chart
 documents %>% 
   tidytext::unnest_tokens(word, text, token = "ngrams", n = 3) %>% 
-  tidyr::separate(col = "word", into = c("word1", "word2", "word3")) %>% 
+  tidyr::separate(col = "word", into = c("word1", "word2", "word3"), sep = " ") %>% 
   filter(!word1 %in% tidytext::stop_words$word,
          !word1 %in% c("federal", "reserve", "committee", "intermeeting"),
          !word2 %in% tidytext::stop_words$word,
@@ -546,7 +546,15 @@ Now that we have terms stored as bigrams (and trigrams!), we can perform sentime
 
 Sentiment analysis could be used for the terms without sorting them into pairs, but this adds error when negation terms are used. _Weak_ growth does not mean the same thing as _strong_ growth, but using only one term does not show this distinction.
 
+```{r echo = FALSE, results = "show"}
 
+bigram_unnested_documents %>% 
+  tidyr::separate(col = word, into = c("word1", "word2"), sep = " ") %>% 
+  filter(!word1 %in% tidytext::stop_words$word,
+         !word2 %in% tidytext::stop_words$word)
+
+
+```
 
 
 
