@@ -310,11 +310,11 @@ data %>%
   filter(word %in% c(word1, word2)) %>% 
   mutate(doc_id = lubridate::as_date(stringr::str_sub(doc_id, start = 12))) %>% 
   tidyr::pivot_wider(names_from = word, values_from = n) %>% 
-  mutate(.[, 2] / unlist(.[49, 2]),
-         .[, 3] / unlist(.[49, 3])) %>% 
+  mutate((.[, 2] / unlist(.[49, 2]) * 100),
+         (.[, 3] / unlist(.[49, 3])) * 100) %>% 
   tidyr::pivot_longer(names_to = "word", values_to = "index", cols = 2:3) %>% 
   ggplot(aes(x = doc_id, y = index, color = word)) +
-  geom_line(show.legend = T) +
+  geom_line(size = 1.3, show.legend = T) +
   xlab("FOMC Meetings") +
   ylab("Uses in Minutes Releases, Index (Base: 01-28-15)") +
   ggtitle(graph_title) +
