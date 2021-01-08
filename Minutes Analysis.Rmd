@@ -210,8 +210,9 @@ head(unigram_unnested_documents %>%
        count(word, sort = T), 10) %>% 
   ggplot(aes(x = reorder(word, n), y = n, fill = n)) +
   geom_col(show.legend = F) +
+  xlab(NULL) +
   ylab("number of occurrences") +
-  ggtitle("Word Counts Across All Documents") +
+  ggtitle("# of Uses Across All Documents") +
   coord_flip() +
   theme_bw()
 
@@ -384,7 +385,7 @@ inf_mentions <- unigram_unnested_documents %>%
 
 ggplot() +
   geom_line(data = inf_mentions,
-            aes(x = doc_id, y = n, color = "fomc"),
+            aes(x = doc_id, y = n, color = "infltn"),
             size = 1.02) +
   geom_line(data = bonds,
             aes(x = date, y = ind, color = "bond"),
@@ -416,9 +417,9 @@ As we can see, the inflation rate and the constant maturity rate seem to be inve
 
 ## N-GRAMS & Markov Chains
 
-We do not need to restrict our analysis to one word. We can extract multiple words, or "n-grams," to add context to the phrases the Fed uses.
+We do not need to restrict our analysis to one word. We can extract multiple words, or "n-grams," to add context to the phrases the Fed uses. We can do the same analysis in the previous sections with two or three words instead of one. After some investigation, know that the words "federal," "reserve," "committee," and "intermeeting" are also removed, as I suspect they mostly refer to formalities within the documents, not the topics discussed at FOMC meetings.
 
-```{r echo = F}
+```{r echo = F, results = "show"}
 bigram_unnested_documents <- documents %>% 
   tidytext::unnest_tokens(word, text, token = "ngrams", n = 2)
 
@@ -426,16 +427,24 @@ bigram_unnested_documents <- documents %>%
 bigram_unnested_documents_filtered <- bigram_unnested_documents %>% 
   tidyr::separate(col = "word", into = c("word1", "word2")) %>% 
   filter(!word1 %in% tidytext::stop_words$word,
-         !word2 %in% tidytext::stop_words$word) %>% 
+         !word1 %in% c("federal", "reserve", "committee", "intermeeting"),
+         !word2 %in% tidytext::stop_words$word,
+         !word2 %in% c("federal", "reserve", "committee", "intermeeting")) %>% 
   tidyr::unite(col = "word", c("word1", "word2"), sep = " ")
-
-
 
 
 
 # This one is best for the upfront bar chart
 bigram_unnested_documents_filtered %>% 
-  count(word, sort = TRUE)
+  count(word, sort = TRUE) %>% 
+  slice(1:10) %>% 
+  ggplot(aes(x = reorder(word, n), y = n, color = n)) +
+  geom_col(show.legend = F)+
+  xlab(NULL) +
+  ylab("number of occurrences") +
+  ggtitle("# of Uses Across All Documents") +
+  coord_flip() +
+  theme_bw()
 
 
 
@@ -444,6 +453,10 @@ bigram_unnested_documents_filtered %>%
 # This one is better for plotting with a line graph
 bigram_unnested_documents_filtered %>% 
   count(doc_id, word, sort = TRUE)
+
+
+
+
 
 
 
@@ -476,8 +489,6 @@ trigrams_unnested_documents_filtered %>%
 
 
 ```
-
-
 
 
 
@@ -559,7 +570,7 @@ throw a cor.test() in there somewhere...
 
 
 
-
+stop making the script sound like a tutorial and more like an exploration.
 
 
 
