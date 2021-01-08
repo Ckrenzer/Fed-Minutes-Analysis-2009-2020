@@ -297,7 +297,7 @@ Clearly, then, we can see the value brought from this statistic. It allows us to
 
 In addition to finding which terms are important to specific documents (FOMC Meetings in this instance), we can also calculate the usage of words over time. We can find some cool trends, such as the following:
 
-```{r, echo = FALSE, results = "show", fig.height = 10}
+```{r echo = FALSE, results = "show", fig.height = 10}
 
 change_over_time <- function(data, word1, word2, graph_title){
   
@@ -345,15 +345,24 @@ change_over_time(data = unigram_unnested_documents,
                    word2 = "wage")
 
 ```
-We don't have to compare the words used in FOMC meetings to words in FOMC meetings only, of course. Why don't we compare the Fed's use of "inflation" with the effective federal funds rate? Only two Fed Minutes releases started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. Most economic data only comes out monthly, quarterly, etc., so a common base is needed for comparison.
 
-```{r echo = TRUE, results "show"}
 
-exchange <- readr::read_csv("US-Euro Foreign Exchange Rate.csv",
-                            col_names = T)
-exchange$rate <- as.numeric(exchange$rate)
 
-str(exchange)
+We don't have to compare the words used in FOMC meetings to words in FOMC meetings only, of course. Why don't we compare the Fed's use of "inflation" with the 10 Year Bond Yield? Only two Fed Minutes releases started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. Most economic data only comes out monthly, quarterly, etc., so a common base is needed for comparison.
+
+
+
+```{r echo = FALSE, results "show"}
+
+bonds <- readr::read_csv("10 Yr Treasury Constant Maturity Rate Index.csv",
+                         col_names = T)
+# The csv file had a period where missing values go
+bonds$ind[which(bonds$ind == ".")] <- NA
+
+# Setting the data to numeric
+bonds$ind <- as.numeric(bonds$ind)
+
+
 
 inf_mentions <- unigram_unnested_documents %>% 
   count(doc_id, word) %>% 
@@ -363,13 +372,21 @@ inf_mentions <- unigram_unnested_documents %>%
 
 
 
-  ggplot() +
+
+ggplot() +
   geom_line(data = inf_mentions,
-              aes(x = doc_id, y = n, color = "red")) +
+            aes(x = doc_id, y = n, color = "inf")) +
   geom_line(data = exchange,
-            aes(x = date, y = rate, color = "blue"))
-  
+            aes(x = date, y = rate, color = "bonds")) +
+  xlab("Date") +
+  ylab("Index (Base: Nov 1, 2017)") +
+  ggtitle("FOMC Mentions of \"Inflation\" vs. 10 Yr. Treasury Maturity Rate") +
+  theme_bw()
+
 ```
+
+
+
 
 
 The data for the CPI is monthly, using the core consumer price index (which means food and energy are removed) in U.S. cities. The figure above shows us the FOMC
