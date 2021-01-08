@@ -416,7 +416,7 @@ As we can see, the inflation rate and the constant maturity rate seem to be inve
 
 ## N-GRAMS & Markov Chains
 
-We do not need to restrict our analysis to one word. We can extract multiple words, or "n-grams," to add context to the phrases the Fed uses during its meetings.
+We do not need to restrict our analysis to one word. We can extract multiple words, or "n-grams," to add context to the phrases the Fed uses.
 
 ```{r echo = F}
 bigram_unnested_documents <- documents %>% 
@@ -448,7 +448,32 @@ bigram_unnested_documents_filtered %>%
 
 
 
-tidytext::stop_words
+
+
+
+#trigrams here I come!
+trigrams_unnested_documents <- documents %>% 
+  tidytext::unnest_tokens(word, text, token = "ngrams", n = 3)
+
+trigrams_unnested_documents_filtered <- trigrams_unnested_documents %>% 
+  tidyr::separate(col = "word", into = c("word1", "word2", "word3")) %>% 
+  filter(!word1 %in% tidytext::stop_words$word,
+         !word2 %in% tidytext::stop_words$word,
+         !word3 %in% tidytext::stop_words$word) %>% 
+  tidyr::unite(col = "word", c("word1", "word2", "word3"), sep = " ")
+
+
+# Good for the bar charts
+trigrams_unnested_documents_filtered %>% 
+  count(word, sort = TRUE)
+
+
+# Good for the line charts (n is too small for a meaningful line graph)
+trigrams_unnested_documents_filtered %>% 
+  count(doc_id, word, sort = TRUE)
+
+
+
 
 ```
 
