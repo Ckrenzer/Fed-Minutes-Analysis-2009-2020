@@ -52,6 +52,7 @@ if(!"tidytext" %in% package_names) install.packages("tidytext")
 if(!"rvest" %in% package_names) install.packages("rvest")
 if(!"tidyr" %in% package_names) install.packages("tidyr")
 if(!"ggplot2" %in% package_names) install.packages("ggplot2")
+if(!"patchwork" %in% package_names) install.packages("patchwork")
 
 # Loading in dplyr because it is used too often
 # to :: it the entire time
@@ -60,6 +61,7 @@ library(dplyr)
 # Packages which are difficult to use without loading:
 library(rvest)
 library(ggplot2)
+library(patchwork)
 
 
 ```
@@ -273,7 +275,7 @@ Now that's something interesting! The Fed uses many different acronyms to descri
 
 $~$
 
-You may be wondering how these terms relate to the current events at the time. Yield curve controls (yield curve targets, YCT), for instance, were a hot topic in June 2020, when the Fed was evaluating the experiences central banks across the developed world had with controlling government bond yields in response to the recession. The second phrase, term asset-backed securities loan facilities (talf), was a major policy the Fed pursued in the aftermath of the Great Recession, which is also consistent with these findings.
+You may be wondering how these terms relate to the current events at the time. Yield curve controls (yield curve targets, YCT), for instance, were a hot topic in June 2020, when the Fed was evaluating the experiences central banks across the developed world had with controlling government bond yields in response to the recession. As a matter of fact, "yct" only appeared in _one_ Fed Minutes release and appeared fifteen times! The second phrase, term asset-backed securities loan facilities (talf), was a major policy the Fed pursued in the aftermath of the Great Recession, which is also consistent with these findings.
 
 Clearly, then, we can see the value brought from this statistic. It allows us to identify important aspects of documents to hone in on topics of interest.
 
@@ -291,17 +293,17 @@ Clearly, then, we can see the value brought from this statistic. It allows us to
 
 ## Change Over Time
 
-We can use the information from the tf-idf to identify changes in a term's use over time, using an index with the first observation
+In addition to finding which terms are important to specific documents (FOMC Meetings in this instance), we can also calculate the usage of words over time. We can find some cool trends, such as the following:
 
-```{r, echo = FALSE, results = "show"}
+```{r, echo = FALSE, results = "show", fig.height = 10}
 
 change_over_time <- function(data, word1, word2, graph_title){
 
-  graph_title <-  paste("Usage of ",
+  graph_title <-  paste("Usage of \"",
                        stringr::str_to_title(word1),
-                       " vs. ",
+                       "\" and \"",
                        stringr::str_to_title(word2),
-                       " Over Time",
+                       "\" Over Time",
                        sep = "")
   
 data %>% 
@@ -309,24 +311,36 @@ data %>%
   ungroup() %>% 
   filter(word %in% c(word1, word2)) %>% 
   mutate(doc_id = lubridate::as_date(stringr::str_sub(doc_id, start = 12))) %>% 
-  tidyr::pivot_wider(names_from = word, values_from = n) %>% 
-  mutate((.[, 2] / unlist(.[49, 2]) * 100),
-         (.[, 3] / unlist(.[49, 3])) * 100) %>% 
-  tidyr::pivot_longer(names_to = "word", values_to = "index", cols = 2:3) %>% 
-  ggplot(aes(x = doc_id, y = index, color = word)) +
+  ggplot(aes(x = doc_id, y = n, color = word)) +
   geom_line(size = 1.3, show.legend = T) +
   xlab("FOMC Meetings") +
-  ylab("Uses in Minutes Releases, Index (Base: 01-28-15)") +
+  ylab("# of Uses") +
   ggtitle(graph_title) +
   theme_bw()
 
 }#end of change_over_time()
 
+# These plots are put on top of one another using the 
+# patchwork package's "/" operator
+change_over_time(data = unigram_unnested_documents,
+                 word1 = "employment",
+                 word2 = "inflation") /
 
 change_over_time(data = unigram_unnested_documents,
-                 word1 = "inflation",
-                 word2 = "unemployment")
+                 word1 = "dollar",
+                 word2 = "china") /
 
+change_over_time(data = unigram_unnested_documents,
+                 word1 = "trade",
+                 word2 = "job") /
+
+change_over_time(data = unigram_unnested_documents,
+                 word1 = "stability",
+                 word2 = "inflation") /
+
+change_over_time(data = unigram_unnested_documents,
+                 word1 = "gdp",
+                 word2 = "wage")
   
 ```
 
