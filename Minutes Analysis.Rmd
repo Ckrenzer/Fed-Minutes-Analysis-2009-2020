@@ -437,7 +437,11 @@ As we can see, the inflation rate and the constant maturity rate seem to be inve
 
 We do not need to restrict our analysis to one word. We can extract multiple words, or "n-grams," to add context to the phrases the Fed uses. We can do the same analysis in the previous sections with two or three words instead of one. After some investigation, know that the words "federal," "reserve," "committee," and "intermeeting" are also removed, as I suspect they mostly refer to formalities within the documents, not the topics discussed at FOMC meetings.
 
+First, the most common pairs of words:
+
 ```{r echo = F, results = "show"}
+
+# The bigrams
 bigram_unnested_documents <- documents %>% 
   tidytext::unnest_tokens(word, text, token = "ngrams", n = 2)
 
@@ -467,10 +471,14 @@ bigram_unnested_documents_filtered %>%
   theme_bw()
 
 
+```
+
+Using two words for the analysis allows us to ask more specific questions about the data. It allows us to ask things like, how has the Fed's use of "financial markets" compared with its use of "labor market" over time?
+
+```{r, echo = F, results = "show"}
 
 
-
-# This one is better for plotting with a line graph
+# Usage of "financial markets" vs. "labor market" over time
 bigram_unnested_documents_filtered %>% 
   count(doc_id, word, sort = TRUE) %>% 
   filter(word %in% c("financial markets", "labor market")) %>% 
@@ -492,14 +500,13 @@ bigram_unnested_documents_filtered %>%
 
 
 
+```
 
 
+```{r echo = FALSE, results = "show"}
 
 
-
-
-
-#trigrams here I come!
+# The trigrams
 trigrams_unnested_documents <- documents %>% 
   tidytext::unnest_tokens(word, text, token = "ngrams", n = 3)
 
