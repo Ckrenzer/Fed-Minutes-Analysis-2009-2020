@@ -352,7 +352,7 @@ We don't have to compare the words used in FOMC meetings to words in FOMC meetin
 
 
 
-```{r echo = FALSE, results "show"}
+```{r echo = FALSE, results = "show"}
 
 bonds <- readr::read_csv("10 Yr Treasury Constant Maturity Rate Index.csv",
                          col_names = T)
