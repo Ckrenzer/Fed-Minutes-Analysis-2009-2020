@@ -208,10 +208,10 @@ unigram_unnested_documents <- documents %>%
 head(unigram_unnested_documents %>% 
        anti_join(tidytext::stop_words) %>% 
        count(word, sort = T), 10) %>% 
-  ggplot(aes(x = reorder(word, n), y = n, fill = n)) +
+  ggplot(aes(x = reorder(word, n), y = n, fill = word)) +
   geom_col(show.legend = F) +
   xlab(NULL) +
-  ylab("number of occurrences") +
+  ylab("# of Uses") +
   ggtitle("# of Uses Across All Documents") +
   coord_flip() +
   theme_bw()
@@ -286,7 +286,7 @@ Now that's something interesting! The Fed uses many different acronyms to descri
 
 $~$
 
-You may be wondering how these terms relate to the current events at the time. Yield curve controls (yield curve targets, YCT), for instance, were a hot topic in June 2020, when the Fed was evaluating the experiences central banks across the developed world had with controlling government bond yields in response to the recession. As a matter of fact, "yct" only appeared in _one_ Fed Minutes release and appeared fifteen times! The second phrase, term asset-backed securities loan facilities (talf), was a major policy the Fed pursued in the aftermath of the Great Recession, which is also consistent with these findings.
+You may be wondering how these terms relate to the current events at the time. Yield curve controls (yield curve targets, YCT), for instance, were a hot topic in June 2020, when the Fed was evaluating the experiences central banks across the developed world had with controlling government bond yields in response to the recession. As a matter of fact, "yct" only appeared in _one_ Fed Minutes release and appeared fifteen times! The second phrase, term asset-backed securities loan facilities (talf), was a major policy the Fed pursued in the aftermath of the Great Recession.
 
 Clearly, then, we can see the value brought from this statistic. It allows us to identify important aspects of documents to hone in on topics of interest.
 
@@ -446,16 +446,21 @@ bigram_unnested_documents_filtered <- bigram_unnested_documents %>%
 bigram_unnested_documents_filtered %>% 
   count(word, sort = TRUE) %>% 
   slice(1:10) %>% 
-  ggplot(aes(x = reorder(word, n), y = n, color = n)) +
+  ggplot(aes(x = reorder(word, n), y = n, fill = word)) +
   geom_col(show.legend = F)+
   xlab(NULL) +
-  ylab("number of occurrences") +
+  ylab("# of Uses") +
   ggtitle("# of Uses Across All Documents") +
   coord_flip() +
   theme_bw()
 
 
 ```
+
+
+
+
+
 
 Using two words for the analysis allows us to ask more specific questions about the data. It allows us to ask things like, how has the Fed's use of "financial markets" compared with its use of "labor market" over time?
 
@@ -489,7 +494,7 @@ bigram_unnested_documents_filtered %>%
 
 
 
-We even can extend this line of thinking further with pairings of three words:
+We can extend this line of thinking further with pairings of three words:
 
 ```{r echo = FALSE, results = "show"}
 
@@ -501,26 +506,33 @@ trigrams_unnested_documents <- documents %>%
 trigrams_unnested_documents_filtered <- trigrams_unnested_documents %>% 
   tidyr::separate(col = "word", into = c("word1", "word2", "word3")) %>% 
   filter(!word1 %in% tidytext::stop_words$word,
+         !word1 %in% c("federal", "reserve", "committee", "intermeeting"),
          !word2 %in% tidytext::stop_words$word,
-         !word3 %in% tidytext::stop_words$word) %>% 
+         !word2 %in% c("federal", "reserve", "committee", "intermeeting"),
+         !word3 %in% tidytext::stop_words$word,
+         !word3 %in% c("federal", "reserve", "committee", "intermeeting"),) %>% 
   tidyr::unite(col = "word", c("word1", "word2", "word3"), sep = " ")
 
 
 # Good for the bar charts
 trigrams_unnested_documents_filtered %>% 
-  count(word, sort = TRUE)
-
-
-# Good for the line charts (n is too small for a meaningful line graph)
-trigrams_unnested_documents_filtered %>% 
-  count(doc_id, word, sort = TRUE)
+  count(word, sort = TRUE) %>% 
+  slice(1:10) %>% 
+  ggplot(aes(x = reorder(word, n), y = n, fill = word)) +
+  geom_col(show.legend = F)+
+  xlab(NULL) +
+  ylab("# of Uses") +
+  ggtitle("# of Uses Across All Documents") +
+  coord_flip() +
+  theme_bw()
+  
 
 
 
 
 ```
 
-
+These terms might benefit from exploring combinations of four words to find words that precede these phrases, such as "_strong_ labor market conditions" or "_long_ term inflation expectations."
 
 
 
@@ -539,7 +551,7 @@ trigrams_unnested_documents_filtered %>%
 add a nice transition, too.
 
 
-this is the cool part---you break the terms into their ngrams, then plot them over time!
+this is the cool part---you break the terms into their n-grams, then plot them over time!
 
 you can simply use parse_number() to retrieve the dates
 
@@ -550,7 +562,7 @@ Your readthrough notes say "n-grams are good because they provide context and le
 
 
 
-The loughran sentiment lexicon can be used to analyze this data. An ngram approach will be used because many terms will be negated
+The loughran sentiment lexicon can be used to analyze this data. An n-gram approach will be used because many terms will be negated
 
 
 
