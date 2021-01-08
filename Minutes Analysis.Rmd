@@ -66,6 +66,8 @@ library(ggplot2)
 library(patchwork)
 
 
+rm(package_names)
+
 ```
 
 ## Data Import
@@ -165,6 +167,12 @@ for(i in stringr::str_remove_all(list.files(dirs[2:3]), "\\.pdf")){
 
 # Arranging the documents in chronological order
 documents <- arrange(documents, doc_id)
+
+
+rm(old_fomat)
+rm(new_format)
+rm(i)
+rm(dirs)
 
 ```
 
@@ -344,11 +352,12 @@ change_over_time(data = unigram_unnested_documents,
                    word1 = "gdp",
                    word2 = "wage")
 
+
 ```
 
 
 
-We don't have to compare the words used in FOMC meetings to words in FOMC meetings only, of course. Why don't we compare the Fed's use of "inflation" with the 10 Year Bond Yield? Only two Fed Minutes releases started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. Most economic data only comes out monthly, quarterly, etc., so a common base is needed for comparison.
+We don't have to compare the words used in FOMC meetings to words in FOMC meetings only, of course. Why don't we compare the Fed's use of "inflation" with 10 year bond yields? Only two Fed Minutes releases started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. Most economic data only comes out monthly, quarterly, etc., and a common base is needed for comparison.
 
 
 
@@ -375,15 +384,71 @@ inf_mentions <- unigram_unnested_documents %>%
 
 ggplot() +
   geom_line(data = inf_mentions,
-            aes(x = doc_id, y = n, color = "inf"),
+            aes(x = doc_id, y = n, color = "fomc"),
             size = 1.02) +
   geom_line(data = bonds,
             aes(x = date, y = ind, color = "bond"),
             size = 1.02) +
   xlab("Date") +
   ylab("Index (Base: Nov 1, 2017)") +
-  ggtitle("FOMC Mentions of \"Inflation\" vs. 10 Yr. Treasury Maturity Rate") +
+  ggtitle("FOMC Mentions of \"Inflation\" vs. 10 Year Treasury Maturity Rate") +
   theme_bw()
+
+rm(inf_mentions)
+rm(unigram_unnested_documents)
+rm(bonds)
+
+```
+
+As we can see, the inflation rate and the constant maturity rate seem to be inversely related.
+
+
+
+
+
+
+
+
+
+
+
+
+
+## N-GRAMS & Markov Chains
+
+We do not need to restrict our analysis to one word. We can extract multiple words, or "n-grams," to add context to the phrases the Fed uses during its meetings.
+
+```{r echo = F}
+bigram_unnested_documents <- documents %>% 
+  tidytext::unnest_tokens(word, text, token = "ngrams", n = 2)
+
+
+bigram_unnested_documents_filtered <- bigram_unnested_documents %>% 
+  tidyr::separate(col = "word", into = c("word1", "word2")) %>% 
+  filter(!word1 %in% tidytext::stop_words$word,
+         !word2 %in% tidytext::stop_words$word) %>% 
+  tidyr::unite(col = "word", c("word1", "word2"), sep = " ")
+
+
+
+
+
+# This one is best for the upfront bar chart
+bigram_unnested_documents_filtered %>% 
+  count(word, sort = TRUE)
+
+
+
+
+
+# This one is better for plotting with a line graph
+bigram_unnested_documents_filtered %>% 
+  count(doc_id, word, sort = TRUE)
+
+
+
+
+tidytext::stop_words
 
 ```
 
@@ -391,91 +456,7 @@ ggplot() +
 
 
 
-The data for the CPI is monthly, using the core consumer price index (which means food and energy are removed) in U.S. cities. The figure above shows us the FOMC
 
-
-
-
-
-
-
-
-
-
-
-
-TASKS:
-1. parse the date from the doc_id column
-2. Use line graphs to plot usage of various words over time (Ex. inflation and unemployment, or some other interesting plots)
-
-
-
-
-
-find the number of occurrences of these words in each document over time. Does it change? This would be a line chart.
-
-
-I think the way to go about this is to count word usage by document, then filter, then plot..?
-
-
-As we can see, ... changes with time. Can we use sentiment analysis to validate these findings further?
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## REPEAT THE PREVIOUS THREE SECTIONS WITH NGRAMS!!!
-
-Also give the tables titles--and make them look better!
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Markov Chains
-
-Make Markov chains with your n-grams
 
 
 
