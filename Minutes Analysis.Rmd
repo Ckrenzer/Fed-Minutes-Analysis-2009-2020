@@ -375,9 +375,11 @@ inf_mentions <- unigram_unnested_documents %>%
 
 ggplot() +
   geom_line(data = inf_mentions,
-            aes(x = doc_id, y = n, color = "inf")) +
-  geom_line(data = exchange,
-            aes(x = date, y = rate, color = "bonds")) +
+            aes(x = doc_id, y = n, color = "inf"),
+            size = 1.02) +
+  geom_line(data = bonds,
+            aes(x = date, y = ind, color = "yield"),
+            size = 1.02) +
   xlab("Date") +
   ylab("Index (Base: Nov 1, 2017)") +
   ggtitle("FOMC Mentions of \"Inflation\" vs. 10 Yr. Treasury Maturity Rate") +
