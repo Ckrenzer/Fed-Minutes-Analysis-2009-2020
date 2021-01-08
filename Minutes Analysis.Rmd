@@ -499,11 +499,9 @@ We can extend this line of thinking further with pairings of three words:
 ```{r echo = FALSE, results = "show"}
 
 
-# The trigrams
-trigrams_unnested_documents <- documents %>% 
-  tidytext::unnest_tokens(word, text, token = "ngrams", n = 3)
-
-trigrams_unnested_documents_filtered <- trigrams_unnested_documents %>% 
+# The trigrams bar chart
+documents %>% 
+  tidytext::unnest_tokens(word, text, token = "ngrams", n = 3) %>% 
   tidyr::separate(col = "word", into = c("word1", "word2", "word3")) %>% 
   filter(!word1 %in% tidytext::stop_words$word,
          !word1 %in% c("federal", "reserve", "committee", "intermeeting"),
@@ -511,11 +509,7 @@ trigrams_unnested_documents_filtered <- trigrams_unnested_documents %>%
          !word2 %in% c("federal", "reserve", "committee", "intermeeting"),
          !word3 %in% tidytext::stop_words$word,
          !word3 %in% c("federal", "reserve", "committee", "intermeeting"),) %>% 
-  tidyr::unite(col = "word", c("word1", "word2", "word3"), sep = " ")
-
-
-# Good for the bar charts
-trigrams_unnested_documents_filtered %>% 
+  tidyr::unite(col = "word", c("word1", "word2", "word3"), sep = " ")%>% 
   count(word, sort = TRUE) %>% 
   slice(1:10) %>% 
   ggplot(aes(x = reorder(word, n), y = n, fill = word)) +
@@ -532,7 +526,7 @@ trigrams_unnested_documents_filtered %>%
 
 ```
 
-These terms might benefit from exploring combinations of four words to find words that precede these phrases, such as "_strong_ labor market conditions" or "_long_ term inflation expectations."
+These terms might benefit from exploring combinations of four words to find words that precede these phrases, such as "_strong_ labor market conditions" or "_long_ term inflation expectations." This is not an optimal path to pursue, however, because the more combinations of terms to find, the smaller the sample size becomes. Going from two to three terms made the "# of Uses" drop by about one-third.
 
 
 
@@ -548,12 +542,20 @@ These terms might benefit from exploring combinations of four words to find word
 ## Sentiment Analysis
 
 
-add a nice transition, too.
+Now that we have terms stored as bigrams (and trigrams!), we can perform sentiment analysis on the Fed Minutes releases. Various lexicons have been built up over the years to determine the mood that a document gives off. In this case, the Louhgran and McDonald dictionary of financial sentiment terms (Loughran and McDonald 2011).
 
 
-this is the cool part---you break the terms into their n-grams, then plot them over time!
 
-you can simply use parse_number() to retrieve the dates
+
+
+
+
+
+
+
+
+
+
 
 Talk about the packages, sentiment lexicons, why some are more suited for certain cases than others, etc.
 
@@ -563,9 +565,6 @@ Your readthrough notes say "n-grams are good because they provide context and le
 
 
 The loughran sentiment lexicon can be used to analyze this data. An n-gram approach will be used because many terms will be negated
-
-
-
 
 
 
