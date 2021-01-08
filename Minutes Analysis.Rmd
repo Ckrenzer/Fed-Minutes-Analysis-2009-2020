@@ -345,13 +345,17 @@ change_over_time(data = unigram_unnested_documents,
                    word2 = "wage")
 
 ```
-We don't have to compare the words to other words, of course. Why don't we compare the Fed's use of "inflation" with the inflation rate growth, using an index? Only two Fed Minutes releases started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. This is because the base to the CPI can only be set on a per-month basis.
+We don't have to compare the words used in FOMC meetings to words in FOMC meetings only, of course. Why don't we compare the Fed's use of "inflation" with the effective federal funds rate? Only two Fed Minutes releases started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. Most economic data only comes out monthly, quarterly, etc., so a common base is needed for comparison.
 
 ```{r echo = TRUE, results "show"}
 
-cpi_actual <- readr::read_csv("(seas) Core CPI Index Nov 2017 = 100.csv")
+exchange <- readr::read_csv("US-Euro Foreign Exchange Rate.csv",
+                            col_names = T)
+exchange$rate <- as.numeric(exchange$rate)
 
-cpi_mentions <- unigram_unnested_documents %>% 
+str(exchange)
+
+inf_mentions <- unigram_unnested_documents %>% 
   count(doc_id, word) %>% 
   ungroup() %>% 
   filter(word == "inflation") %>% 
@@ -360,10 +364,11 @@ cpi_mentions <- unigram_unnested_documents %>%
 
 
   ggplot() +
-  geom_line(aes(x = doc_id, y = n), color = "red") +
-  geom_line(data = ,
-            aes(x = date, y = cpi), color = "blue")
-
+  geom_line(data = inf_mentions,
+              aes(x = doc_id, y = n, color = "red")) +
+  geom_line(data = exchange,
+            aes(x = date, y = rate, color = "blue"))
+  
 ```
 
 
