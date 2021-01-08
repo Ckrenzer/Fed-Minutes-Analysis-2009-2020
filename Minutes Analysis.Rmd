@@ -374,33 +374,17 @@ bonds$ind <- as.numeric(bonds$ind)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-# YOU FOGOT TO MAKE THE INFLATION MENTIONS AN INDEX!!!! -------------------------------------------------------------
-
-
-
-
+# inflation-mention index
 inf_mentions <- unigram_unnested_documents %>% 
   count(doc_id, word) %>% 
   ungroup() %>% 
   filter(word == "inflation") %>% 
-  mutate(doc_id = lubridate::as_date(stringr::str_sub(doc_id, start = 12)))
+  mutate(doc_id = lubridate::as_date(stringr::str_sub(doc_id, start = 12))) %>% 
+  mutate(`n` = (unlist(.[, 3]) / unlist(.[which(unlist(.$doc_id) == "2017-11-01"), 3])) * 100)
 
 
 
-
+# The line chart
 ggplot() +
   geom_line(data = inf_mentions,
             aes(x = doc_id, y = n, color = "infl"),
@@ -488,8 +472,8 @@ bigram_unnested_documents_filtered %>%
          `financial markets` = (unlist(.[, 3]) / unlist(.[which(unlist(.$doc_id) == "2017-11-01"), 3])) * 100) %>% 
   tidyr::pivot_longer(cols = c(`financial markets`, `labor market`), names_to = "word", values_to = "ind") %>% 
   mutate(word = recode(word,
-                `financial markets` = "finc",
-                `labor market` = "labor")) %>% 
+                       `financial markets` = "finc",
+                       `labor market` = "labor")) %>% 
   ggplot(aes(x = doc_id, y = ind, color = word)) +
   geom_line(size = 1.02) +
   xlab("Date") +
@@ -502,6 +486,10 @@ bigram_unnested_documents_filtered %>%
 
 ```
 
+
+
+
+We even can extend this line of thinking further with pairings of three words:
 
 ```{r echo = FALSE, results = "show"}
 
