@@ -542,7 +542,16 @@ These terms might benefit from exploring combinations of four words to find word
 ## Sentiment Analysis
 
 
-Now that we have terms stored as bigrams (and trigrams!), we can perform sentiment analysis on the Fed Minutes releases. Various lexicons have been built up over the years to determine the mood that a document gives off. In this case, the Louhgran and McDonald dictionary of financial sentiment terms (Loughran and McDonald 2011).
+Now that we have terms stored as bigrams (and trigrams!), we can perform sentiment analysis on the Fed Minutes releases. Various lexicons have been built up over the years to determine the mood that a document gives off. In this case, the Louhgran and McDonald dictionary of financial sentiment terms (Loughran and McDonald 2011). Other popular lexicons, such as the "AFINN," "NRC," or "BING" are not suited for documents coming from a bank. These three lexicons assign values to terms such as "share" or "risk" when they may actually be neutral in a financial context.
+
+Sentiment analysis could be used for the terms without sorting them into pairs, but this adds error when negation terms are used. _Weak_ growth does not mean the same thing as _strong_ growth, but using only one term does not show this distinction.
+
+
+
+
+
+
+
 
 
 
