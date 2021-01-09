@@ -37,9 +37,11 @@ knitr::opts_chunk$set(echo = FALSE,
                       message = F)
 ```
 
+
 ## Packages
 
 I recommend pulling the information using the HTML version of these meetings. The PDFs are a nightmare to clean (speaking from experience)! If you do decide to read the pdf text into R, I suggest using the extract_text() function from the tabulizer package because it is smart enough to recognize columns of selectable PDF text. Other popular packages for reading in PDFs, such as readtext or pdftools, will only read across the page left to right, then down--despite the pages containing two separate columns of text.
+
 
 ```{r, echo = TRUE}
 # The names of all your installed packages
@@ -70,11 +72,14 @@ rm(package_names)
 
 ```
 
+
 ## Data Import
 
 Since I started this process using the pdf files, I will use their file names to determine the corresponding url. If I had started mining this data from HTML in the first place, a more elegant solution might have been used, but downloading all the PDF files and using their names to put together urls works fine enough...
 
 There are two formats for the HTML file--one for the Fed Minutes before 2012 and those released on or after that year. With this in mind, two functions will be used to read in the different formats. The documents are parsed in chronological order but are also arranged after being added to the tibble, in the event that something were to happen to the order of the files in the "Fed Minutes Releases" folder from which these names were pulled.
+
+
 ```{r, echo = TRUE}
 old_format <- function(id){
   
@@ -176,6 +181,7 @@ rm(dirs)
 
 ```
 
+
 ## The Dataset
 The data is almost ready for analysis. We now have two columns: one for the document name, and another for the contents of that document. If you are interested in performing a similar analysis, the data frame can now be transformed in a number of ways. You can use the unnest_tokens() function from the tidytext package to extract tokens (words, groups of words, paragraphs, etc.) and perform sentiment analysis, or you could make a term-document matrix and perform topic modeling.
 
@@ -199,6 +205,7 @@ Brian F. Madigan is the Secretary who writes all these meetings--he has been the
 
 After removing 'stop words'--those words that are extremely common and provide very little meaning (Ex. "the," "of," "a," "to," etc.)--which words does Brian use most frequently?
 
+
 ```{r, echo = FALSE, results = "show"}
 unigram_unnested_documents <- documents %>% 
   tidytext::unnest_tokens(word, text)
@@ -217,6 +224,7 @@ head(unigram_unnested_documents %>%
   theme_bw()
 
 ```
+
 
 These are words one expects to find in official banking documents; the terms "committee," "inflation," and "market" dominate across all `r nrow(documents)` minutes. These words may be insightful for some people, but most people would agree that most of these terms are uninteresting finds. Much of what Brian wrote is generic banking lingo from which we cannot derive much meaning. We can still use these terms to draw interesting conclusions with these terms. We will visualize their usage over time, for example, but we first want to know which terms are unique to different documents.
 
@@ -244,6 +252,8 @@ __tf-df = (tf * idf)__
 $~$
 
 You can think of tf-idf as a formula that finds terms that occur frequently--but not too frequently. Let's see which words are most important among all Fed Minutes releases, as measured by the tf-idf:
+
+
 ```{r echo = FALSE, results = "show"}
 
 knitr::kable(head(unigram_unnested_documents %>% 
@@ -258,6 +268,7 @@ knitr::kable(head(unigram_unnested_documents %>%
 I'm tired of seeing those words everywhere. The correct interpretation of this table, however, is that the words "pandemic," "coronavirus," and "outbreak" are the most important terms, as determined by the tf-idf. Let's filter out the words "pandemic," "coronavirus," "virus," and "outbreak" to see what else tf-idf deems important. Since we all know when hurricane season rolls around, let's remove the term "hurricane" as well. Finally, after some inspection, the names of the months, "shall," and "our" should also be filtered out.
 
 Let's see a plot of these terms after removing these terms:
+
 
 ```{r echo = FALSE, results = "show"}
 
@@ -305,6 +316,7 @@ Clearly, then, we can see the value brought from this statistic. It allows us to
 ## Change Over Time
 
 In addition to finding which terms are important to specific documents (FOMC Meetings in this instance), we can also calculate the usage of words over time. We can find some cool trends, such as the following:
+
 
 ```{r echo = FALSE, results = "show", fig.height = 10}
 
@@ -357,9 +369,7 @@ change_over_time(data = unigram_unnested_documents,
 ```
 
 
-
 We don't have to compare the words used in FOMC meetings to words in FOMC meetings only, of course. Why don't we compare the Fed's use of "inflation" with 10 year bond yields? Only two Fed Minutes releases started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. Most economic data only comes out monthly, quarterly, etc., and a common base is needed for comparison.
-
 
 
 ```{r echo = FALSE, results = "show"}
@@ -402,17 +412,8 @@ rm(unigram_unnested_documents)
 
 ```
 
+
 As we can see, the inflation rate and the constant maturity rate seem to be inversely related.
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -421,6 +422,7 @@ As we can see, the inflation rate and the constant maturity rate seem to be inve
 We do not need to restrict our analysis to one word. We can extract multiple words, or "n-grams," to add context to the phrases the Fed uses. We can do the same analysis in the previous sections with two or three words instead of one. After some investigation, know that the words "federal," "reserve," "committee," and "intermeeting" are also removed, as I suspect they mostly refer to formalities within the documents, not the topics discussed at FOMC meetings.
 
 First, the most common pairs of words:
+
 
 ```{r echo = F, results = "show"}
 
@@ -457,11 +459,8 @@ bigram_unnested_documents_filtered %>%
 ```
 
 
-
-
-
-
 Using two words for the analysis allows us to ask more specific questions about the data. It allows us to ask things like, how has the Fed's use of "financial markets" compared with its use of "labor market" over time?
+
 
 ```{r, echo = F, results = "show"}
 
@@ -491,9 +490,8 @@ bigram_unnested_documents_filtered %>%
 ```
 
 
-
-
 We can extend this line of thinking further with pairings of three words:
+
 
 ```{r echo = FALSE, results = "show"}
 
@@ -550,6 +548,7 @@ Whenever negation words preface a word in the loughran lexicon, we can flip its 
 
 Before continuing to the sentiment analysis, it is important to note that most sentiment lexicons have more positive words than negative words, so the results should be considered in relation to one another. After providing the raw numbers, I will also recreate the plot with an index against another variable.
 
+
 ```{r echo = TRUE, results = "show"}
 
 negation_words <- c("not", "no", "weak", "low", "never", "without", "slow")
@@ -592,40 +591,18 @@ fed_sentiment %>%
 
 ```
 
-Look at that dip at the beginning of the 2020 recession! They don't call economics the dismal science for nothing... Why don't we use an index to compare the sentiment from the FOMC Minutes with the S&P 500?
 
+Look at that dip at the beginning of the 2020 recession! They don't call economics the dismal science for nothing... Why don't we use an index to compare the sentiment from the FOMC Minutes with the S&P 500?
 
 
 ```{r echo = TRUE, results = "show"}
 
-# we have fed_sentiment for one geom
-# and we'll have the cpi for another geom
-
-
-# For the fed...
-# Make the 'sentiment' column an index
-
-
-
-# full join the datasets and then you can plot their values on the same geom using a legend
-
-
-
-
-
-
-# I will be making the index column an index--odd, yes, but
-# it will allow this graph to scale with the fed data
-
-
-
-
-
+# Transforming the sentiment into an index
 fed_sentiment$sentiment <- (fed_sentiment[[2]] / fed_sentiment[[2]][71]) * 100
 
 
 
-
+# The line graph
 ggplot() +
   geom_line(data = fed_sentiment,
             aes(x = doc_id, y = sentiment, color = "fomc"),
@@ -640,17 +617,6 @@ ggplot() +
 
 
 ```
-
-
-
-
-
-
-
-
-
-
-
 
 
 Talk about the packages, sentiment lexicons, why some are more suited for certain cases than others, etc.
@@ -686,6 +652,7 @@ The loughran sentiment lexicon can be used to analyze this data. An n-gram appro
 
 
 ## Topic Modeling
+
 
 
 ```{r,echo=F}
