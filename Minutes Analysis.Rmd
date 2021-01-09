@@ -440,9 +440,6 @@ bigram_unnested_documents_filtered <- bigram_unnested_documents %>%
   tidyr::unite(col = "word", c("word1", "word2"), sep = " ")
 
 
-
-
-
 # The bar chart for the bigrams
 bigram_unnested_documents_filtered %>% 
   count(word, sort = TRUE) %>% 
@@ -484,9 +481,6 @@ bigram_unnested_documents_filtered %>%
   ggtitle("FOMC Mentions of \"Financial Markets\" vs. \"Labor Market\"") +
   theme_bw()
 
-
-
-
 ```
 
 
@@ -516,10 +510,6 @@ documents %>%
   ggtitle("# of Uses Across All Documents") +
   coord_flip() +
   theme_bw()
-
-
-
-
 
 ```
 
@@ -576,6 +566,7 @@ fed_sentiment <- bigram_unnested_documents %>%
   group_by(doc_id) %>% 
   summarize(sentiment = sum(positive) - sum(negative))
 
+# The line graph
 fed_sentiment %>% 
   ggplot(aes(x = doc_id, y = sentiment, color = "red")) +
   geom_line(show.legend = F, size = 1.02) +
@@ -584,18 +575,13 @@ fed_sentiment %>%
   ggtitle("Sentiment of FOMC Minutes using Loughran and McDonald Lexicon") +
   theme_bw()
 
-
-
-
-
-
 ```
 
 
-Look at that dip at the beginning of the 2020 recession! They don't call economics the dismal science for nothing... Why don't we use an index to compare the sentiment from the FOMC Minutes with the S&P 500?
+Look at that dip at the beginning of the 2020 recession! They don't call economics the dismal science for nothing... Why don't we use an index to compare the sentiment from the FOMC Minutes with the T-bills from earlier?
 
 
-```{r echo = TRUE, results = "show"}
+```{r echo = FALSE, results = "show"}
 
 # Transforming the sentiment into an index
 fed_sentiment$sentiment <- (fed_sentiment[[2]] / fed_sentiment[[2]][71]) * 100
@@ -617,17 +603,6 @@ ggplot() +
 
 
 ```
-
-
-Talk about the packages, sentiment lexicons, why some are more suited for certain cases than others, etc.
-
-Your readthrough notes say "n-grams are good because they provide context and let you adjust for negation words, but their downside is that the number of observations decreases significantly"--->They're better suited for large documents (which suits this project perfectly)
-
-
-
-
-The loughran sentiment lexicon can be used to analyze this data. An n-gram approach will be used because many terms will be negated
-
 
 
 
