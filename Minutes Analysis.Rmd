@@ -57,6 +57,9 @@ if(!"ggplot2" %in% package_names) install.packages("ggplot2")
 if(!"patchwork" %in% package_names) install.packages("patchwork")
 if(!"lubridate" %in% package_names) install.packages("lubridate")
 if(!"knitr" %in% package_names) install.packages("knitr")
+if(!"igraph" %in% package_names) install.packages("igraph")
+if(!"ggraph" %in% package_names) install.packages("ggraph")
+if(!"grid" %in% package_names) install.packages("grid")
 
 # Loading in dplyr because it is used too often
 # to :: it the entire time
@@ -81,6 +84,8 @@ There are two formats for the HTML file--one for the Fed Minutes before 2012 and
 
 
 ```{r, echo = TRUE}
+
+# The code in this section "makes" the dataset
 old_format <- function(id){
   
   # Note: using str_c() to prevent the code from going out of
@@ -544,13 +549,14 @@ Before continuing to the sentiment analysis, it is important to note that most s
 negation_words <- c("not", "no", "weak", "low", "never", "without", "slow")
 
 # counts, then puts each word in its own column,
-# then formats the date and searches for negations (which will
-# negate the value of `n` if TRUE), then adds the sentiment,
+# then formats the date in `doc_id` and searches for negations
+# (which will negate the value of `n` if TRUE),
+# then joins the sentiment lexicon values,
 # then filters for only the positive and negative sentiments,
 # then negates values of `n` with a negative sentiment,
 # then takes the sum of the values of `n` on each date,
 # then plots
-fed_sentiment <- bigram_unnested_documents %>% 
+bigram_unnested_documents %>% 
   count(doc_id, word) %>%
   tidyr::separate(col = word,
                   into = c("word1", "word2"),
@@ -564,10 +570,7 @@ fed_sentiment <- bigram_unnested_documents %>%
                      values_from = n,
                      values_fill = 0) %>% 
   group_by(doc_id) %>% 
-  summarize(sentiment = sum(positive) - sum(negative))
-
-# The line graph
-fed_sentiment %>% 
+  summarize(sentiment = sum(positive) - sum(negative)) %>% 
   ggplot(aes(x = doc_id, y = sentiment, color = "red")) +
   geom_line(show.legend = F, size = 1.02) +
   xlab("Date") +
@@ -591,14 +594,32 @@ Look at that dip at the beginning of the 2020 recession! They don't call economi
 
 ## Markov Chains
 
+To visualize the relationship between the words further, we can arrange groups of words into a network.
+
+```{r echo = FALSE, results = "show", fig.height = 12}
+
+set.seed(2021)
+ggraph::ggraph(bigram_unnested_documents_filtered %>% 
+  tidyr::separate(col = word,
+                  into = c("word1", "word2"),
+                  sep = " ") %>% 
+  count(word1, word2, sort = T) %>% 
+  filter(n > 150) %>% 
+  igraph::graph_from_data_frame(),
+  layout = "fr") +
+  ggraph::geom_edge_link(aes(edge_alpha = n), show.legend = F,
+                         end_cap = ggraph::circle(.07, "inches"),
+                         arrow = grid::arrow(type = "closed",
+                                             length = unit(.15, "inches"))) +
+  ggraph::geom_node_point(color = "lightblue", size = 5) +
+  ggraph::geom_node_text(aes(label = name), vjust = 1, hjust = 1) +
+  ggraph::theme_graph() 
+ 
+```
 
 
-
-
-
-
-
-
+1999
+filter = 400 works nicely
 
 
 ## Topic Modeling
