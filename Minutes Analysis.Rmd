@@ -399,7 +399,6 @@ ggplot() +
 
 rm(inf_mentions)
 rm(unigram_unnested_documents)
-rm(bonds)
 
 ```
 
@@ -608,7 +607,6 @@ Look at that dip at the beginning of the 2020 recession! They don't call economi
 
 
 
-
 # full join the datasets and then you can plot their values on the same geom using a legend
 
 
@@ -618,38 +616,27 @@ Look at that dip at the beginning of the 2020 recession! They don't call economi
 
 # I will be making the index column an index--odd, yes, but
 # it will allow this graph to scale with the fed data
-sp500 <- readr::read_csv("Standard and Poor 500.csv",
-                         col_names = T)
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+fed_sentiment$sentiment <- (fed_sentiment[[2]] / fed_sentiment[[2]][71]) * 100
 
 
 
 
 ggplot() +
   geom_line(data = fed_sentiment,
-            mapping = aes(x = doc_id, y = sentiment),
-            color = "red", show.legend = T) +
-  geom_line(data = sp500,
-            mapping = aes(x = date, y = low),
-            color = "blue", show.legend = T)
-
-
-
+            aes(x = doc_id, y = sentiment, color = "fomc"),
+            size = 1.02, show.legend = T) +
+  geom_line(data = bonds,
+            aes(x = date, y = ind, color = "bond"),
+                size = 1.02, show.legend = T) +
+  xlab("Date") +
+  ylab("Index (Base: Nov 1, 2017)") +
+  ggtitle("FOMC Minutes Sentiment vs. 10 Year Treasury Maturity Rate") +
+  theme_bw()
 
 
 ```
