@@ -417,7 +417,7 @@ As we can see, the inflation rate and the constant maturity rate seem to be inve
 
 
 
-## N-GRAMS & Markov Chains
+## N-GRAMS
 
 We do not need to restrict our analysis to one word. We can extract multiple words, or "n-grams," to add context to the phrases the Fed uses. We can do the same analysis in the previous sections with two or three words instead of one. After some investigation, know that the words "federal," "reserve," "committee," and "intermeeting" are also removed, as I suspect they mostly refer to formalities within the documents, not the topics discussed at FOMC meetings.
 
@@ -597,18 +597,46 @@ Look at that dip at the beginning of the 2020 recession! They don't call economi
 
 
 
-```{r echo = TRUE}
+```{r echo = TRUE, results = "show"}
 
-# we have fed_sentiment for one plot
-# and we'll have the cpi for another plot
+# we have fed_sentiment for one geom
+# and we'll have the cpi for another geom
+
+
+# For the fed...
+# Make the 'sentiment' column an index
 
 
 # For the cpi...
 # Make it % change from a year ago
 
 
-cpi <- readr::read_csv("")
 
+
+
+cpi <- readr::read_csv("CPI Nov 2017 = 100.csv",
+                       col_names = T)
+
+
+
+# I'm not familiar with any functions that perform a percent change,
+# but this for loop will take care of that--it's short so
+# I don't feel too guilty.
+for(i in 13:nrow(cpi)){
+  cpi[i, 2] <- unlist((cpi[i, 2] - cpi[i - 12, 2]) / cpi[i - 12, 2] * 100)
+}
+cpi <- cpi[13:nrow(cpi), ]
+
+
+cpi
+
+
+
+
+ggplot() +
+  geom_line(data = fed_sentiment,
+            mapping = aes(x = doc_id, y = sentiment, color = "red")) +
+  geom_line()
 
 
 
@@ -636,6 +664,21 @@ Your readthrough notes say "n-grams are good because they provide context and le
 
 
 The loughran sentiment lexicon can be used to analyze this data. An n-gram approach will be used because many terms will be negated
+
+
+
+
+
+
+
+
+
+
+
+## Markov Chains
+
+
+
 
 
 
