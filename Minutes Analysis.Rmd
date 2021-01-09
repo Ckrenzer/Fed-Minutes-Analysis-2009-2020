@@ -596,7 +596,7 @@ Look at that dip at the beginning of the 2020 recession! They don't call economi
 
 To visualize the relationship between the words further, we can arrange groups of words into a network.
 
-```{r echo = FALSE, results = "show", fig.height = 12}
+```{r echo = FALSE, results = "show", fig.height = 12.5, fig.width = 11}
 
 set.seed(2021)
 ggraph::ggraph(bigram_unnested_documents_filtered %>% 
@@ -617,9 +617,28 @@ ggraph::ggraph(bigram_unnested_documents_filtered %>%
  
 ```
 
+We see how the words relate to one another. Many are interconnected in the massive web going down the left side, but other networks are also formed for different associated words. While terms such as "participants," "market," "economic," or "inflation" dominate the large network, other networks exist largely independent of these words, such as "job gains" or "forward guidance."
 
-1999
-filter = 400 works nicely
+While this visualization of a Markov Chain allows us to visualize which words are typically follow one another, it does not show which words are related within documents. What do we do when we want to see which words appear in the same document (though they might not be adjacent to one another)?
+
+A correlation test addresses this issue.
+
+
+
+
+
+
+## Correlated Words
+
+
+
+
+
+
+
+
+
+
 
 
 ## Topic Modeling
