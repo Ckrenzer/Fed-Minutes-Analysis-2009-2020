@@ -562,7 +562,7 @@ negation_words <- c("not", "no", "weak", "low", "never", "without", "slow")
 # then negates values of `n` with a negative sentiment,
 # then takes the sum of the values of `n` on each date,
 # then plots
-bigram_unnested_documents %>% 
+fed_sentiment <- bigram_unnested_documents %>% 
   count(doc_id, word) %>%
   tidyr::separate(col = word,
                   into = c("word1", "word2"),
@@ -576,7 +576,9 @@ bigram_unnested_documents %>%
                      values_from = n,
                      values_fill = 0) %>% 
   group_by(doc_id) %>% 
-  summarize(sentiment = sum(positive) - sum(negative)) %>% 
+  summarize(sentiment = sum(positive) - sum(negative))
+
+fed_sentiment %>% 
   ggplot(aes(x = doc_id, y = sentiment, color = "red")) +
   geom_line(show.legend = F, size = 1.02) +
   xlab("Date") +
@@ -595,7 +597,24 @@ Look at that dip at the beginning of the 2020 recession! They don't call economi
 
 
 
+```{r echo = TRUE}
 
+# we have fed_sentiment for one plot
+# and we'll have the cpi for another plot
+
+
+# For the cpi...
+# Make it % change from a year ago
+
+
+cpi <- readr::read_csv("")
+
+
+
+
+
+
+```
 
 
 
@@ -685,3 +704,8 @@ Board of Governors of the Federal Reserve System (US), 10-Year Treasury Constant
 
 
 Loughran, T. and McDonald, B. (2016). Textual analysis in accounting and finance: A survey. Journal of Accounting Research 54(4), 1187-1230. doi: 10.2139/ssrn.2504147 https://sraf.nd.edu/textual-analysis/resources/#Master%20Dictionary
+
+
+
+
+U.S. Bureau of Labor Statistics, Consumer Price Index for All Urban Consumers: All Items in U.S. City Average [CPIAUCSL], retrieved from FRED, Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/CPIAUCSL, January 8, 2021.
