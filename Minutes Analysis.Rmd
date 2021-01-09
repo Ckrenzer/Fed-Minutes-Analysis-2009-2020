@@ -530,9 +530,9 @@ These terms might benefit from exploring combinations of four words to find word
 ## Sentiment Analysis
 
 
-Now that we have terms stored as bigrams (and trigrams!), we can perform sentiment analysis on the Fed Minutes releases. Various lexicons have been built up over the years to determine of a document. In this case, the Loughran and McDonald dictionary of financial sentiment words (Loughran and McDonald 2011). Other popular lexicons, such as the "AFINN," "NRC," or "BING" are not suited for documents coming from a bank--these three lexicons assign values to terms such as "share" or "risk" despite the fact those words may actually be neutral in a financial context.
+Now that we have terms stored as bigrams (and trigrams!), we can perform sentiment analysis on the Fed Minutes releases. Various lexicons have been built up over the years to determine of a document. In this case, the Loughran and McDonald dictionary of financial sentiment words (Loughran and McDonald 2011). Other popular lexicons, such as the "AFINN," "NRC," or "BING" are not suited for documents coming from a bank--these three lexicons assign values to terms such as "share" or "risk" despite the fact those words may not carry any connotation in a financial context.
 
-Sentiment analysis could be used for the terms without sorting them into pairs, but this adds error when negation terms are used. _Weak_ growth does not mean the same thing as _strong_ growth, but using only one term does not show this distinction.
+Sentiment analysis could be used for the terms without sorting them into pairs, but this adds error when negation terms are used. _Weak_ growth does not mean the same thing as _strong_ growth, but this distinction would never be found by using only one term.
 
 Whenever negation words preface a word in the loughran lexicon, we can flip its sign or set its sentiment value to zero, ensuring negation words do not skew the true sentiment values.
 
@@ -655,14 +655,18 @@ stop making the script sound like a tutorial and more like an exploration.
 
 ## References
 
-
+#bonds
 Board of Governors of the Federal Reserve System (US), 10-Year Treasury Constant Maturity Rate [DGS10], retrieved from FRED, Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/DGS10, January 7, 2021.
 
 
-
+# loughran
 Loughran, T. and McDonald, B. (2016). Textual analysis in accounting and finance: A survey. Journal of Accounting Research 54(4), 1187-1230. doi: 10.2139/ssrn.2504147 https://sraf.nd.edu/textual-analysis/resources/#Master%20Dictionary
 
 
+#nrc
+http://www.purl.com/net/lexicons Mohammad, S. M. & Turney, P. D. (2010) Emotions evoked by common words and phrases: Using Mechanical Turk to create an emotion lexicon, In Proceeding of Workshop on Computational Approaches to Analysis and Generation of Emotion in Text, 26-34.
 
 
-U.S. Bureau of Labor Statistics, Consumer Price Index for All Urban Consumers: All Items in U.S. City Average [CPIAUCSL], retrieved from FRED, Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/CPIAUCSL, January 8, 2021.
+
+
+
