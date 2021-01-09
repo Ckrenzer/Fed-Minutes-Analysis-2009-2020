@@ -526,6 +526,7 @@ documents %>%
 
 ```
 
+
 These terms might benefit from exploring combinations of four words to find words that precede these phrases, such as "_strong_ labor market conditions" or "_long_ term inflation expectations." This is not an optimal path to pursue, however, because the more combinations of terms to find, the smaller the sample size becomes. Going from two to three terms made the "# of Uses" drop by about one-third.
 
 
@@ -542,7 +543,7 @@ These terms might benefit from exploring combinations of four words to find word
 ## Sentiment Analysis
 
 
-Now that we have terms stored as bigrams (and trigrams!), we can perform sentiment analysis on the Fed Minutes releases. Various lexicons have been built up over the years to determine of a document. In this case, the Louhgran and McDonald dictionary of financial sentiment words (Loughran and McDonald 2011). Other popular lexicons, such as the "AFINN," "NRC," or "BING" are not suited for documents coming from a bank--these three lexicons assign values to terms such as "share" or "risk" despite the fact those words may actually be neutral in a financial context.
+Now that we have terms stored as bigrams (and trigrams!), we can perform sentiment analysis on the Fed Minutes releases. Various lexicons have been built up over the years to determine of a document. In this case, the Loughran and McDonald dictionary of financial sentiment words (Loughran and McDonald 2011). Other popular lexicons, such as the "AFINN," "NRC," or "BING" are not suited for documents coming from a bank--these three lexicons assign values to terms such as "share" or "risk" despite the fact those words may actually be neutral in a financial context.
 
 Sentiment analysis could be used for the terms without sorting them into pairs, but this adds error when negation terms are used. _Weak_ growth does not mean the same thing as _strong_ growth, but using only one term does not show this distinction.
 
@@ -554,26 +555,33 @@ Before continuing to the sentiment analysis, it is important to note that most s
 
 negation_words <- c("not", "no", "weak", "low", "never", "without", "slow")
 
-# counts, then separates the first word from the second word,
+# counts, then puts each word in its own column,
 # then formats the date and searches for negations (which will
 # negate the value of `n` if TRUE), then adds the sentiment,
-# then filters out for just positive and negative sentiments,
-# then takes the sum of the values of `n` and plots
+# then filters for only the positive and negative sentiments,
+# then negates values of `n` with a negative sentiment,
+# then takes the sum of the values of `n` on each date,
+# then plots
 bigram_unnested_documents %>% 
   count(doc_id, word) %>%
-  tidyr::separate(col = word, into = c("word1", "word2"), sep = " ") %>%  
+  tidyr::separate(col = word,
+                  into = c("word1", "word2"),
+                  sep = " ") %>%  
   mutate(doc_id = lubridate::as_date(stringr::str_sub(doc_id, start = 12)),
          n = ifelse(word1 %in% negation_words, -n, n)) %>% 
-  inner_join(tidytext::get_sentiments("loughran"), by = c(word2 = "word")) %>% 
+  inner_join(tidytext::get_sentiments("loughran"),
+             by = c(word2 = "word")) %>% 
   filter(sentiment %in% c("positive", "negative")) %>% 
-  tidyr::pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) %>% 
+  tidyr::pivot_wider(names_from = sentiment,
+                     values_from = n,
+                     values_fill = 0) %>% 
   group_by(doc_id) %>% 
   summarize(sentiment = sum(positive) - sum(negative)) %>% 
-  ggplot(aes(x = doc_id, y = sentiment), color = "red") +
+  ggplot(aes(x = doc_id, y = sentiment, color = "red")) +
   geom_line(show.legend = F, size = 1.02) +
   xlab("Date") +
   ylab("Sentiment Value") +
-  ggtitle("Sentiment of FOMC Minutes by Lougran and McDonald Lexicon") +
+  ggtitle("Sentiment of FOMC Minutes using Loughran and McDonald Lexicon") +
   theme_bw()
 
 
@@ -583,7 +591,7 @@ bigram_unnested_documents %>%
 
 ```
 
-They don't call economics the dismal science for nothing!
+Look at that dip at the beginning of the 2020 recession! They don't call economics the dismal science for nothing... Why don't we use an index to compare the sentiment from the FOMC Minutes with real GDP?
 
 
 
@@ -652,6 +660,7 @@ include = FALSE hides the code AND the output from the knit, but will evaluate t
 
 throw a cor.test() in there somewhere...
 
+use some glm()'s
 
 
 
@@ -662,6 +671,17 @@ stop making the script sound like a tutorial and more like an exploration.
 
 
 
+
+
+
+
+
+
 ## References
 
+
 Board of Governors of the Federal Reserve System (US), 10-Year Treasury Constant Maturity Rate [DGS10], retrieved from FRED, Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/DGS10, January 7, 2021.
+
+
+
+Loughran, T. and McDonald, B. (2016). Textual analysis in accounting and finance: A survey. Journal of Accounting Research 54(4), 1187-1230. doi: 10.2139/ssrn.2504147 https://sraf.nd.edu/textual-analysis/resources/#Master%20Dictionary
