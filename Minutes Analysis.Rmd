@@ -568,7 +568,7 @@ fed_sentiment <- bigram_unnested_documents %>%
 
 # The line graph
 fed_sentiment %>% 
-  ggplot(aes(x = doc_id, y = sentiment, color = "red")) +
+  ggplot(aes(x = doc_id, y = sentiment)) +
   geom_line(show.legend = F, size = 1.02) +
   xlab("Date") +
   ylab("Sentiment Value") +
