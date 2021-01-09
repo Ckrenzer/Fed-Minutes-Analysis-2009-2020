@@ -568,7 +568,7 @@ fed_sentiment <- bigram_unnested_documents %>%
 
 # The line graph
 fed_sentiment %>% 
-  ggplot(aes(x = doc_id, y = sentiment)) +
+  ggplot(aes(x = doc_id, y = sentiment, color = "red")) +
   geom_line(show.legend = F, size = 1.02) +
   xlab("Date") +
   ylab("Sentiment Value") +
@@ -578,31 +578,7 @@ fed_sentiment %>%
 ```
 
 
-Look at that dip at the beginning of the 2020 recession! They don't call economics the dismal science for nothing... Why don't we use an index to compare the sentiment from the FOMC Minutes with the T-bills from earlier?
-
-
-```{r echo = FALSE, results = "show"}
-
-# Transforming the sentiment into an index
-fed_sentiment$sentiment <- (fed_sentiment[[2]] / fed_sentiment[[2]][71]) * 100
-
-
-
-# The line graph
-ggplot() +
-  geom_line(data = fed_sentiment,
-            aes(x = doc_id, y = sentiment, color = "fomc"),
-            size = 1.02, show.legend = T) +
-  geom_line(data = bonds,
-            aes(x = date, y = ind, color = "bond"),
-                size = 1.02, show.legend = T) +
-  xlab("Date") +
-  ylab("Index (Base: Nov 1, 2017)") +
-  ggtitle("FOMC Minutes Sentiment vs. 10 Year Treasury Maturity Rate") +
-  theme_bw()
-
-
-```
+Look at that dip at the beginning of the 2020 recession! They don't call economics the dismal science for nothing...
 
 
 
@@ -614,7 +590,6 @@ ggplot() +
 
 
 ## Markov Chains
-
 
 
 
