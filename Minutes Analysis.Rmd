@@ -593,7 +593,7 @@ fed_sentiment %>%
 
 ```
 
-Look at that dip at the beginning of the 2020 recession! They don't call economics the dismal science for nothing... Why don't we use an index to compare the sentiment from the FOMC Minutes with real GDP?
+Look at that dip at the beginning of the 2020 recession! They don't call economics the dismal science for nothing... Why don't we use an index to compare the sentiment from the FOMC Minutes with the S&P 500?
 
 
 
@@ -607,36 +607,46 @@ Look at that dip at the beginning of the 2020 recession! They don't call economi
 # Make the 'sentiment' column an index
 
 
-# For the cpi...
-# Make it % change from a year ago
+
+
+# full join the datasets and then you can plot their values on the same geom using a legend
 
 
 
 
 
-cpi <- readr::read_csv("CPI Nov 2017 = 100.csv",
-                       col_names = T)
+
+# I will be making the index column an index--odd, yes, but
+# it will allow this graph to scale with the fed data
+sp500 <- readr::read_csv("Standard and Poor 500.csv",
+                         col_names = T)
 
 
 
-# I'm not familiar with any functions that perform a percent change,
-# but this for loop will take care of that--it's short so
-# I don't feel too guilty.
-for(i in 13:nrow(cpi)){
-  cpi[i, 2] <- unlist((cpi[i, 2] - cpi[i - 12, 2]) / cpi[i - 12, 2] * 100)
-}
-cpi <- cpi[13:nrow(cpi), ]
 
 
-cpi
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 ggplot() +
   geom_line(data = fed_sentiment,
-            mapping = aes(x = doc_id, y = sentiment, color = "red")) +
-  geom_line()
+            mapping = aes(x = doc_id, y = sentiment),
+            color = "red", show.legend = T) +
+  geom_line(data = sp500,
+            mapping = aes(x = date, y = low),
+            color = "blue", show.legend = T)
 
 
 
