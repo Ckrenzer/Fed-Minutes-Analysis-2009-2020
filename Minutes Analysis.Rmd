@@ -519,7 +519,7 @@ documents %>%
   ggtitle("# of Uses Across All Documents") +
   coord_flip() +
   theme_bw()
-  
+
 
 
 
@@ -542,16 +542,39 @@ These terms might benefit from exploring combinations of four words to find word
 ## Sentiment Analysis
 
 
-Now that we have terms stored as bigrams (and trigrams!), we can perform sentiment analysis on the Fed Minutes releases. Various lexicons have been built up over the years to determine the mood that a document gives off. In this case, the Louhgran and McDonald dictionary of financial sentiment terms (Loughran and McDonald 2011). Other popular lexicons, such as the "AFINN," "NRC," or "BING" are not suited for documents coming from a bank. These three lexicons assign values to terms such as "share" or "risk" when they may actually be neutral in a financial context.
+Now that we have terms stored as bigrams (and trigrams!), we can perform sentiment analysis on the Fed Minutes releases. Various lexicons have been built up over the years to determine of a document. In this case, the Louhgran and McDonald dictionary of financial sentiment words (Loughran and McDonald 2011). Other popular lexicons, such as the "AFINN," "NRC," or "BING" are not suited for documents coming from a bank--these three lexicons assign values to terms such as "share" or "risk" despite the fact those words may actually be neutral in a financial context.
 
 Sentiment analysis could be used for the terms without sorting them into pairs, but this adds error when negation terms are used. _Weak_ growth does not mean the same thing as _strong_ growth, but using only one term does not show this distinction.
 
-```{r echo = FALSE, results = "show"}
+Whenever negation words preface a word in the loughran lexicon, we can flip its sign or set its sentiment value to zero, ensuring negation words do not skew the true sentiment values.
 
+Before continuing to the sentiment analysis, it is important to note that most sentiment lexicons have more positive words than negative words, so the results should be considered in relation to one another. After providing the raw numbers, I will also recreate the plot with an index against another variable.
+
+```{r echo = TRUE, results = "show"}
+
+negation_words <- c("not", "no", "weak", "low", "never", "without", "slow")
+
+# counts, then separates the first word from the second word,
+# then formats the date and searches for negations (which will
+# negate the value of `n` if TRUE), then adds the sentiment,
+# then filters out for just positive and negative sentiments,
+# then takes the sum of the values of `n` and plots
 bigram_unnested_documents %>% 
-  tidyr::separate(col = word, into = c("word1", "word2"), sep = " ") %>% 
-  filter(!word1 %in% tidytext::stop_words$word,
-         !word2 %in% tidytext::stop_words$word)
+  count(doc_id, word) %>%
+  tidyr::separate(col = word, into = c("word1", "word2"), sep = " ") %>%  
+  mutate(doc_id = lubridate::as_date(stringr::str_sub(doc_id, start = 12)),
+         n = ifelse(word1 %in% negation_words, -n, n)) %>% 
+  inner_join(tidytext::get_sentiments("loughran"), by = c(word2 = "word")) %>% 
+  filter(sentiment %in% c("positive", "negative")) %>% 
+  tidyr::pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) %>% 
+  group_by(doc_id) %>% 
+  summarize(sentiment = sum(positive) - sum(negative)) %>% 
+  ggplot(aes(x = doc_id, y = sentiment)) +
+  geom_col(show.legend = F, size = 1.02)
+
+
+
+
 
 
 ```
