@@ -569,8 +569,12 @@ bigram_unnested_documents %>%
   tidyr::pivot_wider(names_from = sentiment, values_from = n, values_fill = 0) %>% 
   group_by(doc_id) %>% 
   summarize(sentiment = sum(positive) - sum(negative)) %>% 
-  ggplot(aes(x = doc_id, y = sentiment)) +
-  geom_col(show.legend = F, size = 1.02)
+  ggplot(aes(x = doc_id, y = sentiment), color = "red") +
+  geom_line(show.legend = F, size = 1.02) +
+  xlab("Date") +
+  ylab("Sentiment Value") +
+  ggtitle("Sentiment of FOMC Minutes by Lougran and McDonald Lexicon") +
+  theme_bw()
 
 
 
@@ -579,7 +583,7 @@ bigram_unnested_documents %>%
 
 ```
 
-
+They don't call economics the dismal science for nothing!
 
 
 
