@@ -806,6 +806,18 @@ As noted, this graph is very similar to the one from the Markov Chains section. 
 
 Speaking of topics...
 
+
+
+
+Check out: line 1953, line 2008, line 2433, line 2765
+
+
+lda captures document-topic probabilities (a document can be some lines of text, remember)
+
+
+
+
+
 ```{r,echo=F}
 
 
