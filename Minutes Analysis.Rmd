@@ -795,7 +795,7 @@ corr %>%
 ```
 
 
-As noted, this graph is very similar to the one from the Markov Chains section. The difference between this graph and its counterpart follows the same explanation provided moments before; n-grams 'pick up' fewer relationships between terms than do correlation coefficients. 
+As noted, this graph is very similar to the one from the Markov Chains section. The difference between this graph and its counterpart follows the same explanation provided moments before; n-grams 'pick up' fewer relationships between terms than do correlation coefficients. Correlation coefficients capture relationships between all words, not only those found in succession. One shortcoming of this graph compared to the one from the previous section is that this graph cannot contain directional arrows, so we cannot tell whether these words were used in conjunction with one another, or whether they merely relate to similar topics.
 
 
 
@@ -804,7 +804,7 @@ As noted, this graph is very similar to the one from the Markov Chains section. 
 
 ## Topic Modeling
 
-
+Speaking of topics...
 
 ```{r,echo=F}
 

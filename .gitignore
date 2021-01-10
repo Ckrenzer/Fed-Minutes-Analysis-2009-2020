@@ -49,3 +49,6 @@ Sample/
 
 # export PDF
 Minutes-Analysis.pdf
+
+# export Rmd file
+Minutes-Analysis.Rmd
