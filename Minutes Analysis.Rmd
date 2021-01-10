@@ -60,6 +60,7 @@ if(!"knitr" %in% package_names) install.packages("knitr")
 if(!"igraph" %in% package_names) install.packages("igraph")
 if(!"ggraph" %in% package_names) install.packages("ggraph")
 if(!"grid" %in% package_names) install.packages("grid")
+if(!"widyr" %in% package_names) install.packages("widyr")
 
 # Loading in dplyr because it is used too often
 # to :: it the entire time
@@ -600,13 +601,13 @@ To visualize the relationship between the words further, we can arrange groups o
 
 set.seed(2021)
 ggraph::ggraph(bigram_unnested_documents_filtered %>% 
-  tidyr::separate(col = word,
-                  into = c("word1", "word2"),
-                  sep = " ") %>% 
-  count(word1, word2, sort = T) %>% 
-  filter(n > 150) %>% 
-  igraph::graph_from_data_frame(),
-  layout = "fr") +
+                 tidyr::separate(col = word,
+                                 into = c("word1", "word2"),
+                                 sep = " ") %>% 
+                 count(word1, word2, sort = T) %>% 
+                 filter(n > 150) %>% 
+                 igraph::graph_from_data_frame(),
+               layout = "fr") +
   ggraph::geom_edge_link(aes(edge_alpha = n), show.legend = F,
                          end_cap = ggraph::circle(.07, "inches"),
                          arrow = grid::arrow(type = "closed",
@@ -614,7 +615,7 @@ ggraph::ggraph(bigram_unnested_documents_filtered %>%
   ggraph::geom_node_point(color = "lightblue", size = 5) +
   ggraph::geom_node_text(aes(label = name), vjust = 1, hjust = 1) +
   ggraph::theme_graph() 
- 
+
 ```
 
 We see how the words relate to one another. Many are interconnected in the massive web going down the left side, but other networks are also formed for different associated words. While terms such as "participants," "market," "economic," or "inflation" dominate the large network, other networks exist largely independent of these words, such as "job gains" or "forward guidance."
@@ -630,8 +631,89 @@ A correlation test addresses this issue.
 
 ## Correlated Words
 
+We can calculate Pearson correlation coefficients to determine how often particular words appear with one another. Examining correlation coefficients across each of the FOMC Minutes is not ideal since each one consists of thousands of words, many of them being used in each document. The most highly correlated words, broken down by document as opposed to by another tokenization, that are not _perfectly correlated_ are still provided below, however.
+
+```{r echo = FALSE}
+
+unigram_unnested_documents %>% 
+  anti_join(tidytext::stop_words, by = "word") %>% 
+  count(doc_id, word) %>%
+  filter(n > 95) %>% 
+  group_by(word) %>% 
+  widyr::pairwise_cor(word, doc_id, sort = T) %>%
+  ungroup() %>% 
+  slice_max(order_by = abs(correlation), n = 20) %>% 
+  slice(seq(1, 20, by = 2))
 
 
+
+```
+
+What should instead be done, as implied in the above sentence, is to break the documents into smaller pieces and calculate correlation coefficients for each of these subsections.
+
+
+
+
+
+
+```{r echo = FALSE}
+
+
+
+
+#######################
+
+
+
+austen_section_words <- austen_books() %>% 
+  filter(book == "Pride & Prejudice") %>% 
+  mutate(section = row_number() %/% 10) %>% 
+  filter(section > 0) %>% unnest_tokens(word, text) %>% 
+  filter(!word %in% stop_words$word)
+
+
+# One useful function from widyr is the pairwise_count() function. The prefix pairwise_ means it will result in
+# one row for each pair of words in the "word" variable. This lets us count common pairs of words co-appearing within
+# the same section.
+
+# count words co-occuring within sections
+?pairwise_count
+
+word_pairs <- austen_section_words %>% 
+  pairwise_count(word, section, sort = T)
+
+
+
+
+
+# Examining Pairwise Correlation
+
+# Pairs like "Elizabeth" an "Darcy" are the most common co-occurring words, but that's not particularly meaningful
+# since THEY'RE ALSO THE MOST COMMON INDIVIDUAL WORDS. We may instead want to examine CORRELATION among words, which
+# indicates how often they appear together relative to how often they appear separately.
+
+# In particular, here we'll focus on the phi coefficient, a common measure for binary correlation. The phi coeffient
+# focuses on how much more likely it is htat either BOTH X and Y appear, or NEITHER do than that one appears without
+# the other.
+
+# The phi coefficient: https://en.wikipedia.org/wiki/Phi_coefficient
+
+# The phi coefficient is equivalent to the Pearson correlation, which you may have heard elsewhere, when it is
+# applied to binary data.
+
+
+# The pairwise_cor() function in widyr lets us find the phi coefficient between words based on how often they appear
+# in the same section. Its syntax is similar to pairwise_count().
+
+# we need to filter for at least relatively common words first...
+word_cors <- austen_section_words %>% 
+  group_by(word) %>% 
+  filter(n() >= 20) %>% 
+  pairwise_cor(word, section, sort = T)
+
+
+
+```
 
 
 
