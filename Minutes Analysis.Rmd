@@ -655,7 +655,7 @@ unigram_unnested_documents %>%
 
 ```
 
-As implied above, what should instead be done is break the documents into smaller pieces and calculate correlation coefficients for each of these subsections.  One problem that is difficult to escape is the existence of 
+As implied above, what should instead be done is break the documents into smaller pieces and calculate correlation coefficients for each of these subsections. To ensure proper nouns do not dominate the results with perfect correlation (and because R ran out of memory =/), only those terms which appear more than XYZJKLDSAGJAL; times will be used.
 
 
 
@@ -696,12 +696,28 @@ documents %>%
   filter(stringr::str_length(sentence) > 10) %>%
   mutate(section = row_number() %/% 10) %>% 
   tidytext::unnest_tokens(word, sentence) %>% 
-  filter(stringr::str_length(word) > 1,
-         !word %in% tidytext::stop_words$word,
+  filter(!word %in% tidytext::stop_words$word,
          !word %in% parsing_errors_and_unwanted_terms) %>% 
-  widyr::pairwise_cor(word, section, sort = T) %>% 
-  filter(correlation < 0.99)
+  group_by(word) %>% 
+  filter(n() > 500) %>% 
+  widyr::pairwise_cor(word, section, sort = T)
 
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r echo = F}
 
 
 #######################
