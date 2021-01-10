@@ -649,7 +649,7 @@ unigram_unnested_documents %>%
 
 ```
 
-What should instead be done, as implied in the above sentence, is to break the documents into smaller pieces and calculate correlation coefficients for each of these subsections.
+What should instead be done, as implied above, is to break the documents into smaller pieces and calculate correlation coefficients for each of these subsections.
 
 
 
@@ -657,6 +657,12 @@ What should instead be done, as implied in the above sentence, is to break the d
 
 
 ```{r echo = FALSE}
+
+
+documents %>% 
+  mutate(doc_id = lubridate::as_date(stringr::str_sub(doc_id, start = 12))) %>% 
+  tidytext::unnest_paragraphs(paragraph, text, paragraph_break = ".")
+
 
 
 
@@ -759,36 +765,37 @@ include = FALSE hides the code AND the output from the knit, but will evaluate t
 throw a cor.test() in there somewhere...
 
 use some glm()'s
-
-
-
-stop making the script sound like a tutorial and more like an exploration.
-
-
-
-
-
-
-
-
-
-
-
-
-## References
-
-#bonds
-Board of Governors of the Federal Reserve System (US), 10-Year Treasury Constant Maturity Rate [DGS10], retrieved from FRED, Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/DGS10, January 7, 2021.
-
-
-# loughran
-Loughran, T. and McDonald, B. (2016). Textual analysis in accounting and finance: A survey. Journal of Accounting Research 54(4), 1187-1230. doi: 10.2139/ssrn.2504147 https://sraf.nd.edu/textual-analysis/resources/#Master%20Dictionary
-
-
-#nrc
-http://www.purl.com/net/lexicons Mohammad, S. M. & Turney, P. D. (2010) Emotions evoked by common words and phrases: Using Mechanical Turk to create an emotion lexicon, In Proceeding of Workshop on Computational Approaches to Analysis and Generation of Emotion in Text, 26-34.
-
-
-
-
-
+         
+         
+         
+         stop making the script sound like a tutorial and more like an exploration.
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         ## References
+         
+         #bonds
+         Board of Governors of the Federal Reserve System (US), 10-Year Treasury Constant Maturity Rate [DGS10], retrieved from FRED, Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/DGS10, January 7, 2021.
+         
+         
+         # loughran
+         Loughran, T. and McDonald, B. (2016). Textual analysis in accounting and finance: A survey. Journal of Accounting Research 54(4), 1187-1230. doi: 10.2139/ssrn.2504147 https://sraf.nd.edu/textual-analysis/resources/#Master%20Dictionary
+         
+         
+         #nrc
+         http://www.purl.com/net/lexicons Mohammad, S. M. & Turney, P. D. (2010) Emotions evoked by common words and phrases: Using Mechanical Turk to create an emotion lexicon, In Proceeding of Workshop on Computational Approaches to Analysis and Generation of Emotion in Text, 26-34.
+         
+         
+         
+         
+         
+         
