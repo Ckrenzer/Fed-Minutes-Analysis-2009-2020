@@ -663,11 +663,9 @@ As implied above, what should instead be done is break the documents into smalle
 
 ```{r echo = FALSE, results = "show"}
 
-parsing_errors_and_formalities <- c("secretary[a-z]*",
-                                    "mattersby",
-                                    "economist[a-z]*",
-                                    "counsel[a-z]*",
-                                    "chairman[a-z]*",
+parsing_errors_and_formalities <- c("secretary",
+                                    "counsel",
+                                    "chairman",
                                     "assistant",
                                     "director",
                                     "session",
@@ -685,6 +683,16 @@ parsing_errors_and_formalities <- c("secretary[a-z]*",
                                     "mester",
                                     "smith",
                                     "rosengren",
+                                    "michael",
+                                    "william",
+                                    "david",
+                                    "matthew",
+                                    "robert",
+                                    "james",
+                                    "daniel",
+                                    "christopher",
+                                    "mark", ######### mark might not refer to a person...
+                                    "eric",
                                     "kansas",
                                     "philadelphia",
                                     "richmond",
@@ -734,6 +742,21 @@ knitr::kable(corr %>%
 We can use these correlations to pick interesting words and find how other terms relate to them.
 
 
+```{r echo = FALSE, results = "show"}
+
+corr %>% 
+  filter(item1 %in% c("markets", "money", "regulation", "force", "statistics", "family")) %>% 
+  group_by(item1) %>% 
+  slice_max(correlation, n = 10) %>% 
+  ungroup() %>% 
+  ggplot(aes(reorder(item2, correlation), correlation)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ item1, scales = "free") +
+  coord_flip() +
+  xlab(NULL) +
+  ylab("Correlation") +
+  ggtitle("Most Correlated Terms for Each Word") +
+  theme_bw()
 
 
 
@@ -744,10 +767,33 @@ We can use these correlations to pick interesting words and find how other terms
 
 
 
+# This lets us pick particular interesting words and find the other words most associated with them.
+word_cors %>% 
+  filter(item1 %in% c("elizabeth", "pounds", "married", "pride")) %>% 
+  group_by(item1) %>% 
+  top_n(6) %>% 
+  ungroup() %>% 
+  mutate(item2 = reorder(item2, correlation)) %>% 
+  ggplot(aes(item2, correlation)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ item1, scales = "free") +
+  coord_flip()
 
-```{r echo = FALSE}
 
 
+# Just as we used ggraph to visualize bigrams, we can use it to visualize the correlations and clusters of words that
+# were found by the widyr package.
+set.seed(2016)
+# Pairs of words in Pride and Prejudice that show at least a 0.15 correlation of appearing within the same 10-line
+# section:
+word_cors %>% 
+  filter(correlation > .15) %>% 
+  graph_from_data_frame() %>% 
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = F) +
+  geom_node_point(color = "lightblue", size = 5) +
+  geom_node_text(aes(label = name), repel = T) +
+  theme_graph()
 
 
 
