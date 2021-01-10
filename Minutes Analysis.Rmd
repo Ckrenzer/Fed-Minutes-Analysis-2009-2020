@@ -105,6 +105,9 @@ old_format <- function(id){
            magrittr::extract(!stringr::str_detect(., "_+")) %>%  # removing the signature
            stringr::str_c(., collapse = " ") %>%
            stringr::str_replace_all("mr\\.{1}|mrs\\.{1}|ms\\.{1}", " ") %>% 
+           stringr::str_replace_all("messrs[\\.]?|mmes[\\.]?", " ") %>% 
+           stringr::str_replace_all("mss[\\.]?|mses[\\.]?", " ") %>% 
+           stringr::str_replace_all("a\\.m\\.|p\\.m\\.|d\\.c\\.", " ") %>% 
            stringr::str_replace_all("\\d", " ") %>% 
            stringr::str_squish() %>% 
            stringr::str_remove_all("return to text[\\d]*|return to top") %>% 
@@ -133,7 +136,10 @@ new_format <- function(id){
            stringr::str_to_lower() %>% 
            stringr::str_replace_all("'s|\"|,|:|;|-{2,}", " ") %>% 
            stringr::str_c(., collapse = " ") %>%
-           stringr::str_replace_all("mr\\.{1}|mrs\\.{1}|ms\\.{1}", " ") %>%
+           stringr::str_replace_all("mr\\.{1}|mrs\\.{1}|ms\\.{1}", " ") %>% 
+           stringr::str_replace_all("messrs[\\.]?|mmes[\\.]?", " ") %>% 
+           stringr::str_replace_all("mss[\\.]?|mses[\\.]?", " ") %>% 
+           stringr::str_replace_all("a\\.m\\.|p\\.m\\.|d\\.c\\.", " ") %>% 
            stringr::str_replace_all("\\d", " ") %>% 
            stringr::str_squish() %>% 
            stringr::str_replace_all("return to text[\\d]*|return to top", " ") %>% 
@@ -180,7 +186,7 @@ for(i in stringr::str_remove_all(list.files(dirs[2:3]), "\\.pdf")){
 documents <- arrange(documents, doc_id)
 
 
-rm(old_fomat)
+rm(old_format)
 rm(new_format)
 rm(i)
 rm(dirs)
@@ -649,7 +655,7 @@ unigram_unnested_documents %>%
 
 ```
 
-What should instead be done, as implied above, is to break the documents into smaller pieces and calculate correlation coefficients for each of these subsections.
+As implied above, what should instead be done is break the documents into smaller pieces and calculate correlation coefficients for each of these subsections.  One problem that is difficult to escape is the existence of 
 
 
 
@@ -658,12 +664,43 @@ What should instead be done, as implied above, is to break the documents into sm
 
 ```{r echo = FALSE}
 
+parsing_errors_and_unwanted_terms <- c("secretary[a-z]+",
+                                       "mattersby",
+                                       "economist[a-z]+",
+                                       "counsel[a-z]+",
+                                       "chairman[a-z]+")
+
+
 
 documents %>% 
-  mutate(doc_id = lubridate::as_date(stringr::str_sub(doc_id, start = 12))) %>% 
-  tidytext::unnest_paragraphs(paragraph, text, paragraph_break = ".")
+  select(-doc_id) %>% 
+  tidytext::unnest_paragraphs(sentence, text, paragraph_break = ".") %>% 
+  filter(stringr::str_length(sentence) > 10) %>%
+  mutate(section = row_number() %/% 10) %>% 
+  tidytext::unnest_tokens(word, sentence) %>% 
+  filter(stringr::str_length(word) > 1,
+         !word %in% tidytext::stop_words$word,
+         !word %in% parsing_errors_and_unwanted_terms) %>% 
+  widyr::pairwise_cor(word, section, sort = T) %>% 
+  filter(correlation < 0.99)
 
 
+
+
+
+
+# Try this again using ngrams in the second unnest_tokens() to be able to remove proper nouns from the results
+documents %>% 
+  select(-doc_id) %>% 
+  tidytext::unnest_paragraphs(sentence, text, paragraph_break = ".") %>% 
+  filter(stringr::str_length(sentence) > 10) %>%
+  mutate(section = row_number() %/% 10) %>% 
+  tidytext::unnest_tokens(word, sentence) %>% 
+  filter(stringr::str_length(word) > 1,
+         !word %in% tidytext::stop_words$word,
+         !word %in% parsing_errors_and_unwanted_terms) %>% 
+  widyr::pairwise_cor(word, section, sort = T) %>% 
+  filter(correlation < 0.99)
 
 
 
@@ -688,17 +725,13 @@ austen_section_words <- austen_books() %>%
 word_pairs <- austen_section_words %>% 
   pairwise_count(word, section, sort = T)
 
-
-
-
-
 # Examining Pairwise Correlation
 
 # Pairs like "Elizabeth" an "Darcy" are the most common co-occurring words, but that's not particularly meaningful
 # since THEY'RE ALSO THE MOST COMMON INDIVIDUAL WORDS. We may instead want to examine CORRELATION among words, which
 # indicates how often they appear together relative to how often they appear separately.
 
-# In particular, here we'll focus on the phi coefficient, a common measure for binary correlation. The phi coeffient
+# In particular, here we'll focus on the phi coefficient, a common measure for binary correlation. The phi coefficent
 # focuses on how much more likely it is htat either BOTH X and Y appear, or NEITHER do than that one appears without
 # the other.
 
@@ -765,37 +798,36 @@ include = FALSE hides the code AND the output from the knit, but will evaluate t
 throw a cor.test() in there somewhere...
 
 use some glm()'s
-         
-         
-         
-         stop making the script sound like a tutorial and more like an exploration.
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         ## References
-         
-         #bonds
-         Board of Governors of the Federal Reserve System (US), 10-Year Treasury Constant Maturity Rate [DGS10], retrieved from FRED, Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/DGS10, January 7, 2021.
-         
-         
-         # loughran
-         Loughran, T. and McDonald, B. (2016). Textual analysis in accounting and finance: A survey. Journal of Accounting Research 54(4), 1187-1230. doi: 10.2139/ssrn.2504147 https://sraf.nd.edu/textual-analysis/resources/#Master%20Dictionary
-         
-         
-         #nrc
-         http://www.purl.com/net/lexicons Mohammad, S. M. & Turney, P. D. (2010) Emotions evoked by common words and phrases: Using Mechanical Turk to create an emotion lexicon, In Proceeding of Workshop on Computational Approaches to Analysis and Generation of Emotion in Text, 26-34.
-         
-         
-         
-         
-         
-         
+
+
+
+stop making the script sound like a tutorial and more like an exploration.
+
+
+
+
+
+
+
+
+
+
+
+
+## References
+
+#bonds
+Board of Governors of the Federal Reserve System (US), 10-Year Treasury Constant Maturity Rate [DGS10], retrieved from FRED, Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/DGS10, January 7, 2021.
+
+
+# loughran
+Loughran, T. and McDonald, B. (2016). Textual analysis in accounting and finance: A survey. Journal of Accounting Research 54(4), 1187-1230. doi: 10.2139/ssrn.2504147 https://sraf.nd.edu/textual-analysis/resources/#Master%20Dictionary
+
+
+#nrc
+http://www.purl.com/net/lexicons Mohammad, S. M. & Turney, P. D. (2010) Emotions evoked by common words and phrases: Using Mechanical Turk to create an emotion lexicon, In Proceeding of Workshop on Computational Approaches to Analysis and Generation of Emotion in Text, 26-34.
+
+
+
+
+
