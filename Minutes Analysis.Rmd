@@ -639,68 +639,90 @@ A correlation test addresses this issue.
 
 We can calculate Pearson correlation coefficients to determine how often particular words appear with one another. Examining correlation coefficients across each of the FOMC Minutes is not ideal since each one consists of thousands of words, many of them being used in each document. The most highly correlated words, broken down by document as opposed to by another tokenization, that are not _perfectly correlated_ are still provided below, however.
 
-```{r echo = FALSE}
+```{r echo = FALSE, results = "show"}
 
-unigram_unnested_documents %>% 
-  anti_join(tidytext::stop_words, by = "word") %>% 
-  count(doc_id, word) %>%
-  filter(n > 95) %>% 
-  group_by(word) %>% 
-  widyr::pairwise_cor(word, doc_id, sort = T) %>%
-  ungroup() %>% 
-  slice_max(order_by = abs(correlation), n = 20) %>% 
-  slice(seq(1, 20, by = 2))
+knitr::kable(unigram_unnested_documents %>% 
+               anti_join(tidytext::stop_words, by = "word") %>% 
+               count(doc_id, word) %>%
+               filter(n > 95) %>% 
+               group_by(word) %>% 
+               widyr::pairwise_cor(word, doc_id, sort = T) %>%
+               ungroup() %>% 
+               slice_max(order_by = abs(correlation), n = 20) %>% 
+               slice(seq(1, 20, by = 2)),
+             digits = 3,
+             caption = "Phi Coefficients for Whole Documents")
 
 
 
 ```
 
-As implied above, what should instead be done is break the documents into smaller pieces and calculate correlation coefficients for each of these subsections. To ensure proper nouns do not dominate the results with perfect correlation (and because R ran out of memory =/), only those terms which appear more than XYZJKLDSAGJAL; times will be used.
+
+As implied above, what should instead be done is break the documents into smaller pieces and calculate correlation coefficients for each of these subsections. To ensure proper nouns do not dominate the results with perfect correlation (and because R ran out of memory =/), only those terms which appear more than 100 times will be used.
 
 
+```{r echo = FALSE, results = "show"}
 
+parsing_errors_and_formalities <- c("secretary[a-z]*",
+                                    "mattersby",
+                                    "economist[a-z]*",
+                                    "counsel[a-z]*",
+                                    "chairman[a-z]*",
+                                    "assistant",
+                                    "director",
+                                    "session",
+                                    "attended",
+                                    "board",
+                                    "governors",
+                                    "associate",
+                                    "division",
+                                    "office",
+                                    "jerome",
+                                    "powell",
+                                    "george",
+                                    "esther",
+                                    "loretta",
+                                    "mester",
+                                    "smith",
+                                    "rosengren",
+                                    "kansas",
+                                    "philadelphia",
+                                    "richmond",
+                                    "atlanta",
+                                    "york",
+                                    "san",
+                                    "francisco",
+                                    "louis",
+                                    "boston",
+                                    "brainard",
+                                    "sunday",
+                                    "monday",
+                                    "tuesday",
+                                    "wednesday",
+                                    "thursday",
+                                    "friday",
+                                    "saturday")
 
-
-
-```{r echo = FALSE}
-
-parsing_errors_and_unwanted_terms <- c("secretary[a-z]+",
-                                       "mattersby",
-                                       "economist[a-z]+",
-                                       "counsel[a-z]+",
-                                       "chairman[a-z]+")
-
-
-
-documents %>% 
-  select(-doc_id) %>% 
-  tidytext::unnest_paragraphs(sentence, text, paragraph_break = ".") %>% 
-  filter(stringr::str_length(sentence) > 10) %>%
-  mutate(section = row_number() %/% 10) %>% 
-  tidytext::unnest_tokens(word, sentence) %>% 
-  filter(stringr::str_length(word) > 1,
-         !word %in% tidytext::stop_words$word,
-         !word %in% parsing_errors_and_unwanted_terms) %>% 
-  widyr::pairwise_cor(word, section, sort = T) %>% 
-  filter(correlation < 0.99)
-
-
-
-
-
-
-# Try this again using ngrams in the second unnest_tokens() to be able to remove proper nouns from the results
-documents %>% 
+# Table of highly correlated terms
+corr <- documents %>% 
   select(-doc_id) %>% 
   tidytext::unnest_paragraphs(sentence, text, paragraph_break = ".") %>% 
   filter(stringr::str_length(sentence) > 10) %>%
   mutate(section = row_number() %/% 10) %>% 
   tidytext::unnest_tokens(word, sentence) %>% 
   filter(!word %in% tidytext::stop_words$word,
-         !word %in% parsing_errors_and_unwanted_terms) %>% 
+         !word %in% parsing_errors_and_formalities) %>% 
   group_by(word) %>% 
-  filter(n() > 500) %>% 
+  filter(n() > 100) %>% 
   widyr::pairwise_cor(word, section, sort = T)
+
+
+knitr::kable(corr %>% 
+               slice(seq(2, 20, by = 2)) %>% 
+               rename("Word 1" = item1, "Word 2" = item2, "Correlation" = correlation),
+             digits = 3,
+             caption = "Phi Coefficients for Document Sections")
+
 
 
 ```
@@ -709,6 +731,7 @@ documents %>%
 
 
 
+We can use these correlations to pick interesting words and find how other terms relate to them.
 
 
 
@@ -717,54 +740,15 @@ documents %>%
 
 
 
-```{r echo = F}
-
-
-#######################
 
 
 
-austen_section_words <- austen_books() %>% 
-  filter(book == "Pride & Prejudice") %>% 
-  mutate(section = row_number() %/% 10) %>% 
-  filter(section > 0) %>% unnest_tokens(word, text) %>% 
-  filter(!word %in% stop_words$word)
 
 
-# One useful function from widyr is the pairwise_count() function. The prefix pairwise_ means it will result in
-# one row for each pair of words in the "word" variable. This lets us count common pairs of words co-appearing within
-# the same section.
-
-# count words co-occuring within sections
-?pairwise_count
-
-word_pairs <- austen_section_words %>% 
-  pairwise_count(word, section, sort = T)
-
-# Examining Pairwise Correlation
-
-# Pairs like "Elizabeth" an "Darcy" are the most common co-occurring words, but that's not particularly meaningful
-# since THEY'RE ALSO THE MOST COMMON INDIVIDUAL WORDS. We may instead want to examine CORRELATION among words, which
-# indicates how often they appear together relative to how often they appear separately.
-
-# In particular, here we'll focus on the phi coefficient, a common measure for binary correlation. The phi coefficent
-# focuses on how much more likely it is htat either BOTH X and Y appear, or NEITHER do than that one appears without
-# the other.
-
-# The phi coefficient: https://en.wikipedia.org/wiki/Phi_coefficient
-
-# The phi coefficient is equivalent to the Pearson correlation, which you may have heard elsewhere, when it is
-# applied to binary data.
+```{r echo = FALSE}
 
 
-# The pairwise_cor() function in widyr lets us find the phi coefficient between words based on how often they appear
-# in the same section. Its syntax is similar to pairwise_count().
 
-# we need to filter for at least relatively common words first...
-word_cors <- austen_section_words %>% 
-  group_by(word) %>% 
-  filter(n() >= 20) %>% 
-  pairwise_cor(word, section, sort = T)
 
 
 
