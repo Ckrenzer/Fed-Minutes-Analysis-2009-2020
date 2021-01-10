@@ -677,10 +677,20 @@ parsing_errors_and_formalities <- c("secretary",
                                     "office",
                                     "jerome",
                                     "powell",
+                                    "john",
+                                    "williams",
+                                    "charles",
+                                    "evans",
+                                    "bullard",
+                                    "janet",
+                                    "yellen",
                                     "george",
                                     "esther",
                                     "loretta",
                                     "mester",
+                                    "jeffrey",
+                                    "lacker",
+                                    "tarullo",
                                     "smith",
                                     "rosengren",
                                     "michael",
@@ -700,6 +710,8 @@ parsing_errors_and_formalities <- c("secretary",
                                     "york",
                                     "san",
                                     "francisco",
+                                    "minneapolis",
+                                    "dallas",
                                     "louis",
                                     "boston",
                                     "brainard",
@@ -709,7 +721,9 @@ parsing_errors_and_formalities <- c("secretary",
                                     "wednesday",
                                     "thursday",
                                     "friday",
-                                    "saturday")
+                                    "saturday",
+                                    "city",
+                                    "st")
 
 # Table of highly correlated terms
 corr <- documents %>% 
@@ -735,11 +749,11 @@ knitr::kable(corr %>%
 
 ```
 
+The remainder of this analysis uses data from the above table.
 
+$~$
 
-
-
-We can use these correlations to pick interesting words and find how other terms relate to them.
+Let's see a nice graph showing the top 10 correlations of six words:
 
 
 ```{r echo = FALSE, results = "show"}
@@ -758,44 +772,24 @@ corr %>%
   ggtitle("Most Correlated Terms for Each Word") +
   theme_bw()
 
+```
+
+Pay attention to the scale and note that it is not the same for all words in the above graph. These graphs paint a similar picture to the graphs from the N-grams section, though this graph is a bit more telling because even though words that frequently appear next to each other are included in these graphs (Ex. "[labor] force participation"), words that often occur in the same sentence or set of sentences appear as well (Ex. "family" and "disposable" are unlikely to be written after one another in a document for n-grams to find, though correlation coefficients still recognize the co-occurrences).
+
+One of the best uses of these correlations is to pick interesting words and find how other terms relate to them in a network, similar to that from the previous section. Note that since there is no directional relationship, there are no arrows on the graph.
 
 
+```{r echo = FALSE, results = "show", fig.height = 10.5, fig.width = 11}
 
-
-
-
-
-
-
-# This lets us pick particular interesting words and find the other words most associated with them.
-word_cors %>% 
-  filter(item1 %in% c("elizabeth", "pounds", "married", "pride")) %>% 
-  group_by(item1) %>% 
-  top_n(6) %>% 
-  ungroup() %>% 
-  mutate(item2 = reorder(item2, correlation)) %>% 
-  ggplot(aes(item2, correlation)) +
-  geom_bar(stat = "identity") +
-  facet_wrap(~ item1, scales = "free") +
-  coord_flip()
-
-
-
-# Just as we used ggraph to visualize bigrams, we can use it to visualize the correlations and clusters of words that
-# were found by the widyr package.
-set.seed(2016)
-# Pairs of words in Pride and Prejudice that show at least a 0.15 correlation of appearing within the same 10-line
-# section:
-word_cors %>% 
-  filter(correlation > .15) %>% 
-  graph_from_data_frame() %>% 
-  ggraph(layout = "fr") +
-  geom_edge_link(aes(edge_alpha = correlation), show.legend = F) +
-  geom_node_point(color = "lightblue", size = 5) +
-  geom_node_text(aes(label = name), repel = T) +
-  theme_graph()
-
-
+set.seed(2021)
+corr %>% 
+  filter(correlation > .6) %>% 
+  igraph::graph_from_data_frame() %>% 
+  ggraph::ggraph(layout = "fr") +
+  ggraph::geom_edge_link(aes(edge_alpha = correlation), show.legend = F) +
+  ggraph::geom_node_point(color = "lightblue", size = 5) +
+  ggraph::geom_node_text(aes(label = name), repel = T) +
+  ggraph::theme_graph()
 
 
 ```
