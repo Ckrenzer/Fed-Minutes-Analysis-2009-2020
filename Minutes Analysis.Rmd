@@ -61,6 +61,7 @@ if(!"igraph" %in% package_names) install.packages("igraph")
 if(!"ggraph" %in% package_names) install.packages("ggraph")
 if(!"grid" %in% package_names) install.packages("grid")
 if(!"widyr" %in% package_names) install.packages("widyr")
+if(!"topicmodels" %in% package_names) install.packages("topicmodels")
 
 # Loading in dplyr because it is used too often
 # to :: it the entire time
@@ -815,7 +816,7 @@ Check out: line 1953, line 2008, line 2433, line 2765
 lda captures document-topic probabilities (a document can be some lines of text, remember)
 
 
-
+latent Dirichlet allocation algorithm
 
 EVERY DOCUMENT IS A MIXTURE OF TOPICS
    We imagine that each document may contain words from several topics in particular proportions. For example,
@@ -828,65 +829,13 @@ EVERY TOPIC IS A MIXTURE OF WORDS
    "actor." Importantly, words can be shared between topics; a word like "budget" might appear in both equally.
 
 
-
-
-
-
-
-# Alternative LDA Implementations
-
- The LDA() function in the topicmodels package is only one implementation of the latent Dirichlet allocation
- algorithm. For example, the mallet package implements a wrapper around the MALLET Java package for text
- classification tools, and the tidytext packages provides tidiers for this model output as well.
- 
- The mallet package takes a somewhat different approach to the input format. For instance, it takes nontokenized
- documents and performs the tokenization itself, and requires a separate file of stop words. This means we have to
- collapse the text into one string for each document before performing LDA.
-
-#create a vector with one string per chapter
-collapsed <- by_chapter_word %>% 
-  anti_join(stop_words, by = "word") %>% 
-  mutate(word = str_replace(word, "'", "")) %>% 
-  group_by(document) %>% 
-  summarize(text = paste(word, collapse = " "))
-
-#create an empty file of "stop words"
-file.create(empty_file <- tempfile())
-docs <- mallet.import(collapsed$document, collapsed$text, empty_file)
-
-mallet_model <- mallet::MalletLDA(num.topics = 4)
-mallet_model$loadDocuments(docs)
-mallet_model$train(100)
-
-
-
- Once the model is created, however, we can use the tidy() and augment() functions described in the rest of the
- chapter in an almost identical way. This includes extracting the probabilities of words within each topic or topics
- within each document.
-
-word-topic pairs
-tidy(mallet_model)
-
-document-topic pairs
-tidy(mallet_model, matrix = "gamma")
-
-column needs to be named "term" for augment"
-term_counts <- rename(word_counts, term = word)
-augment(mallet_model, term_counts)
-
- We could use ggplot2 to explore and visualize the model in the same way we did the LDA output.
-
-
-
-
-
-
-
-
-
-
 ```{r echo=F}
 
+set.seed(2021)
+unigram_unnested_documents %>% 
+  count(doc_id, word) %>% 
+  anti_join(tidytext::stop_words, by = "word") %>% 
+  tidytext::cast_dtm()
 
 
 
@@ -894,10 +843,74 @@ augment(mallet_model, term_counts)
 
 
 
+# We can use the LDA() function from the topicmodels package, setting k = 2, to create a two-topic LDA model.
+
+# Almost any topic model in practice will use a larger k, but we will soon see that this analysis approach
+# extends to a larger number of topis.
+
+# This function returns an object containing the full details of the model fit, such as how words are associated with
+# topics and how topics are associated with documents.
+
+#set a seed so that the output of the model is predictable
+ap_lda <- topicmodels::LDA(AssociatedPress, k = 2, control = list(seed = 1234))
+ap_lda
 
 
 
 
+# Word-Topic Probabilities
+
+# In Chapter 5 we introduced the tidy() method, originally from the broom package, for tidying model objects. The
+# tidytext package provides this method for extracting the per-topic-per-word probabilities, called beta, from
+# the model.
+
+ap_topics <- tidy(ap_lda, matrix = "beta")
+ap_topics
+
+
+# Notice that this has turned the model into a one-topic-per-term-per-row format. For each combination, the model
+# computes the probability of that term being generated from that topic. For example, the term "aaron" has a
+# 1.686917 x 10^-12 probability of being generated from topic 1, but a 3.8959408 x 10^-5 probability of being generated
+# from topic 2.
+
+# We could use dplyr's top_n() to find the 10 terms that are most common within each topic. As a tidy data frame, this
+# lends itself well to a ggplot2 visualization.
+ap_top_terms <- ap_topics %>% 
+  group_by(topic) %>% 
+  top_n(10, beta) %>% 
+  ungroup() %>% 
+  arrange(topic, -beta)
+
+ap_top_terms %>% 
+  mutate(term = reorder(term, beta)) %>% 
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = F) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip()
+
+
+
+
+
+
+
+# This visualization lets us understand the two topics that were extracted from the articles. The most common words in
+# topic 1 include "percent," "million," "billion," and "company," which suggests it may represent business or financial
+# news. Those most common in topic 2 include "president," "government," and "soviet," suggesting that this topic
+# represents political news. One important observation about the words in each topic is that some words, such as "new"
+# and "people," are common within both topics. This is an advantage of topic modeling as opposed to "hard clustering"
+# methods: topics used in natural language could have some overlap in terms of words.
+
+# As an alternative, we could consider the terms that had the GREATEST DIFFERENCE in beta between topic 1 and topic 2.
+# This can be estimated based on the log ratio of the two:
+
+# log2(beta2 / beta1)
+
+# A log ratio is useful because it makes the difference symmetrical: B2 is being twice as large leads to a log ratio
+# of 1, while B1 being twice as large results in -1.
+
+# To constrain it to a set of especially relevant words, we can filter for relatively common words, such as those that
+# have a beta greater than 1/1000 in at least one topic.
 
 ```
 
