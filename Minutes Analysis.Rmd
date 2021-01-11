@@ -812,6 +812,8 @@ Speaking of topics...
 
 Check out: line 1953, line 2008, line 2433, line 2765
 
+line 3707
+
 
 lda captures document-topic probabilities (a document can be some lines of text, remember)
 
@@ -839,7 +841,7 @@ I want to try the topic model a few times--one where I just provide the document
 
 ```{r echo=F}
 
-# This takes 3 min 45 sec to run
+# This takes around 3 min 45 sec to run
 fed_lda <- unigram_unnested_documents %>% 
   count(doc_id, word) %>% 
   anti_join(tidytext::stop_words, by = "word") %>% 
@@ -847,51 +849,18 @@ fed_lda <- unigram_unnested_documents %>%
   topicmodels::LDA(k = 8, control = list(seed = 2021))
 
 
+# Extracts the per-topic-per-word probabilities ("beta") from the model
+fed_topics <- tidytext::tidy(fed_lda, matrix = "beta")
 
-fed_topics <- "Add next step here"
-
-
-
-
-# We can use the LDA() function from the topicmodels package, setting k = 2, to create a two-topic LDA model.
-
-# Almost any topic model in practice will use a larger k, but we will soon see that this analysis approach
-# extends to a larger number of topis.
-
-# This function returns an object containing the full details of the model fit, such as how words are associated with
-# topics and how topics are associated with documents.
-
-#set a seed so that the output of the model is predictable
-ap_lda <- topicmodels::LDA(AssociatedPress, k = 2, control = list(seed = 1234))
-ap_lda
+# "aaa" has a 0.000116 probability being generated from topic 3.
 
 
-
-
-# Word-Topic Probabilities
-
-# In Chapter 5 we introduced the tidy() method, originally from the broom package, for tidying model objects. The
-# tidytext package provides this method for extracting the per-topic-per-word probabilities, called beta, from
-# the model.
-
-ap_topics <- tidy(ap_lda, matrix = "beta")
-ap_topics
-
-
-# Notice that this has turned the model into a one-topic-per-term-per-row format. For each combination, the model
-# computes the probability of that term being generated from that topic. For example, the term "aaron" has a
-# 1.686917 x 10^-12 probability of being generated from topic 1, but a 3.8959408 x 10^-5 probability of being generated
-# from topic 2.
-
-# We could use dplyr's top_n() to find the 10 terms that are most common within each topic. As a tidy data frame, this
-# lends itself well to a ggplot2 visualization.
-ap_top_terms <- ap_topics %>% 
+# A ggplot of the most common words in each topic
+fed_topics %>% 
   group_by(topic) %>% 
-  top_n(10, beta) %>% 
+  slice_max(order_by = beta, n = 7) %>% 
   ungroup() %>% 
-  arrange(topic, -beta)
-
-ap_top_terms %>% 
+  arrange(topic, -beta) %>% 
   mutate(term = reorder(term, beta)) %>% 
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = F) +
@@ -899,7 +868,8 @@ ap_top_terms %>%
   coord_flip()
 
 
-
+# We may be interested in those words that have the greatest difference between groups (as opposed to most likely to appear) in each category,
+# so we can 
 
 
 
@@ -923,6 +893,29 @@ ap_top_terms %>%
 # have a beta greater than 1/1000 in at least one topic.
 
 ```
+
+
+
+
+Instead of determining some topics and calculating probabilities of particular words belonging to these topics, we can determine the probability of words belonging to certain documents. We can do this by casting the matrix to "gamma" instead of "beta."
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
