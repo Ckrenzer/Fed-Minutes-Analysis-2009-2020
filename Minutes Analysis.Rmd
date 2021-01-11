@@ -817,8 +817,82 @@ lda captures document-topic probabilities (a document can be some lines of text,
 
 
 
+EVERY DOCUMENT IS A MIXTURE OF TOPICS
+   We imagine that each document may contain words from several topics in particular proportions. For example,
+   in a two-topic model we could say "Document 1 is 90% topic A and 10% topic B, while Document 2 is 30% topic A
+   and 70% topic B."
+EVERY TOPIC IS A MIXTURE OF WORDS
+   For example, we could imagine a two-topic model of American news, with one topic for "politics" and one for
+   "entertainment." The most common words in the politics topic might be "President," "Congress," and
+   "government," while the entertainment topic may be made up of words such as "movies," "television," and
+   "actor." Importantly, words can be shared between topics; a word like "budget" might appear in both equally.
 
-```{r,echo=F}
+
+
+
+
+
+
+# Alternative LDA Implementations
+
+ The LDA() function in the topicmodels package is only one implementation of the latent Dirichlet allocation
+ algorithm. For example, the mallet package implements a wrapper around the MALLET Java package for text
+ classification tools, and the tidytext packages provides tidiers for this model output as well.
+ 
+ The mallet package takes a somewhat different approach to the input format. For instance, it takes nontokenized
+ documents and performs the tokenization itself, and requires a separate file of stop words. This means we have to
+ collapse the text into one string for each document before performing LDA.
+
+#create a vector with one string per chapter
+collapsed <- by_chapter_word %>% 
+  anti_join(stop_words, by = "word") %>% 
+  mutate(word = str_replace(word, "'", "")) %>% 
+  group_by(document) %>% 
+  summarize(text = paste(word, collapse = " "))
+
+#create an empty file of "stop words"
+file.create(empty_file <- tempfile())
+docs <- mallet.import(collapsed$document, collapsed$text, empty_file)
+
+mallet_model <- mallet::MalletLDA(num.topics = 4)
+mallet_model$loadDocuments(docs)
+mallet_model$train(100)
+
+
+
+ Once the model is created, however, we can use the tidy() and augment() functions described in the rest of the
+ chapter in an almost identical way. This includes extracting the probabilities of words within each topic or topics
+ within each document.
+
+word-topic pairs
+tidy(mallet_model)
+
+document-topic pairs
+tidy(mallet_model, matrix = "gamma")
+
+column needs to be named "term" for augment"
+term_counts <- rename(word_counts, term = word)
+augment(mallet_model, term_counts)
+
+ We could use ggplot2 to explore and visualize the model in the same way we did the LDA output.
+
+
+
+
+
+
+
+
+
+
+```{r echo=F}
+
+
+
+
+
+
+
 
 
 
