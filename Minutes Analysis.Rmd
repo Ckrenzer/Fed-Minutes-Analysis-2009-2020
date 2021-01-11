@@ -829,16 +829,26 @@ EVERY TOPIC IS A MIXTURE OF WORDS
    "actor." Importantly, words can be shared between topics; a word like "budget" might appear in both equally.
 
 
+
+
+
+
+
+
+I want to try the topic model a few times--one where I just provide the document and one where the document is broken up into smaller pieces.
+
 ```{r echo=F}
 
-set.seed(2021)
-unigram_unnested_documents %>% 
+# This takes 3 min 45 sec to run
+fed_lda <- unigram_unnested_documents %>% 
   count(doc_id, word) %>% 
   anti_join(tidytext::stop_words, by = "word") %>% 
-  tidytext::cast_dtm()
+  tidytext::cast_dtm(doc_id, word, n) %>% 
+  topicmodels::LDA(k = 8, control = list(seed = 2021))
 
 
 
+fed_topics <- "Add next step here"
 
 
 
