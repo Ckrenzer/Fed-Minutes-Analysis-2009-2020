@@ -723,6 +723,18 @@ parsing_errors_and_formalities <- c("secretary",
                                     "thursday",
                                     "friday",
                                     "saturday",
+                                    "january",
+                                    "february",
+                                    "march",
+                                    "april",
+                                    "may",
+                                    "june",
+                                    "july",
+                                    "august",
+                                    "september",
+                                    "october",
+                                    "november",
+                                    "december",
                                     "city",
                                     "st")
 
@@ -762,7 +774,7 @@ Let's see a nice graph showing the top 10 correlations of six words:
 corr %>% 
   filter(item1 %in% c("markets", "money", "regulation", "force", "statistics", "family")) %>% 
   group_by(item1) %>% 
-  slice_max(correlation, n = 10) %>% 
+  slice_max(abs(correlation), n = 10) %>% 
   ungroup() %>% 
   ggplot(aes(reorder(item2, correlation), correlation)) +
   geom_bar(stat = "identity") +
@@ -845,6 +857,7 @@ I want to try the topic model a few times--one where I just provide the document
 fed_lda <- unigram_unnested_documents %>% 
   count(doc_id, word) %>% 
   anti_join(tidytext::stop_words, by = "word") %>% 
+  filter(word != parsing_errors_and_formalities) %>% 
   tidytext::cast_dtm(doc_id, word, n) %>% 
   topicmodels::LDA(k = 8, control = list(seed = 2021))
 
@@ -867,16 +880,17 @@ fed_topics %>%
   coord_flip()
 
 
-# We may be interested in those words that have the greatest difference between groups (as opposed to most likely to appear) in each category. For this, We can use a log odds ratio to calculate this difference.
+# We may be interested in those words that have the greatest difference between groups (as opposed to most likely to appear) in each category. For this, We can use a log odds ratio to calculate this difference. For example, which words are most different between topic 5 and topic 6?
 fed_topics %>% 
   mutate(topic = paste0("topic", topic)) %>% 
   tidyr::pivot_wider(names_from = topic, values_from = beta) %>% 
-  filter(topic1 > 0.001 | topic2 > 0.001 | topic3 > 0.001 | topic4 > 0.001 | topic5 > 0.001 |topic6 > 0.001) %>% 
-  mutate(log_ratio = log(topic2 / topic1)) %>% 
+  filter(topic8 > 0.001 |topic2 > 0.001) %>% 
+  mutate(log_ratio = log(topic8 / topic2)) %>% 
   filter(abs(log_ratio) > 10) %>% 
   ggplot(aes(x = reorder(x = term, log_ratio), y = log_ratio)) +
   geom_col() +
-  ylab("Log2 ratio of beta in topic 2 / topic 1") +
+  ggtitle("The negative values are the topic on the left") +
+  ylab("Log2 ratio of beta in topic 8 / topic 2") +
   xlab(NULL) +
   theme_bw() +
   coord_flip()
