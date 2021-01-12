@@ -850,9 +850,8 @@ fed_lda <- unigram_unnested_documents %>%
 
 
 # Extracts the per-topic-per-word probabilities ("beta") from the model
-fed_topics <- tidytext::tidy(fed_lda, matrix = "beta")
-
 # "aaa" has a 0.000116 probability being generated from topic 3.
+fed_topics <- tidytext::tidy(fed_lda, matrix = "beta")
 
 
 # A ggplot of the most common words in each topic
@@ -868,8 +867,22 @@ fed_topics %>%
   coord_flip()
 
 
-# We may be interested in those words that have the greatest difference between groups (as opposed to most likely to appear) in each category,
-# so we can 
+# We may be interested in those words that have the greatest difference between groups (as opposed to most likely to appear) in each category. For this, We can use a log odds ratio to calculate this difference.
+fed_topics %>% 
+  mutate(topic = paste0("topic", topic)) %>% 
+  tidyr::pivot_wider(names_from = topic, values_from = beta) %>% 
+  filter(topic1 > 0.001 | topic2 > 0.001 | topic3 > 0.001 | topic4 > 0.001 | topic5 > 0.001 |topic6 > 0.001) %>% 
+  mutate(log_ratio = log(topic2 / topic1)) %>% 
+  filter(abs(log_ratio) > 10) %>% 
+  ggplot(aes(x = reorder(x = term, log_ratio), y = log_ratio)) +
+  geom_col() +
+  ylab("Log2 ratio of beta in topic 2 / topic 1") +
+  xlab(NULL) +
+  theme_bw() +
+  coord_flip()
+# Topic 1 contains the negative terms
+
+
 
 
 
@@ -892,13 +905,36 @@ fed_topics %>%
 # To constrain it to a set of especially relevant words, we can filter for relatively common words, such as those that
 # have a beta greater than 1/1000 in at least one topic.
 
+
+
+
+
+
+
+
+
+
+
+# We can see that the words more common in topic 2 include political parties such as "democratic" and "republican,"
+# as well as politician's names such as "dukakis" and "gorbachev." Topic 1 is more characterized by currencies like
+# "yen" and "dollar," as well as financial terms such as "index," "prices," and "rates." This helps confirm that the
+# two topics the algorithm identified are political and financial news.
+
 ```
 
-
+In other contexts, we could perform a log-odds ratio to find which words are more or less likely to come from specific documents. For example, we could separate the FOMC Minutes by date according to presidential administration. Let's see which words are most likely to occur during Obama's tenure and those during Trump's time in office.
+############## We could try grouping the documents by political administration and perform a log-odds ratio!
 
 
 Instead of determining some topics and calculating probabilities of particular words belonging to these topics, we can determine the probability of words belonging to certain documents. We can do this by casting the matrix to "gamma" instead of "beta."
 
+
+```{r echo = FALSE}
+
+
+
+
+```
 
 
 
