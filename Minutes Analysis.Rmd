@@ -23,7 +23,7 @@ The data in this analysis includes all FOMC Minutes between January 28th, 2009 t
 
 $~$
 
-I will explore these texts using various text mining approaches including sentiment analysis, tf-idf, and topic modeling in order to identify trends within the FOMC's Meetings.
+I will explore these texts using various text mining approaches including sentiment analysis, tf-idf, and topic modeling to identify trends within the FOMC's Meetings.
 
 
 ```{r setup, include = FALSE}
@@ -265,7 +265,8 @@ knitr::kable(head(unigram_unnested_documents %>%
                     count(doc_id, word, sort = T) %>%
                     ungroup() %>% 
                     tidytext::bind_tf_idf(word, doc_id, n) %>% 
-                    arrange(desc(tf_idf)), 10))
+                    arrange(desc(tf_idf)), 10),
+             caption = "Important Words as Measured by tf-idf")
 
 ```
 
@@ -376,7 +377,7 @@ change_over_time(data = unigram_unnested_documents,
 
 We don't have to compare the words used in FOMC meetings to words in FOMC meetings only, of course. Why don't we compare the Fed's use of "inflation" with 10 year bond yields? 
 
-######Note: Only two Fed Minutes releases started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. Most economic data only comes out monthly, quarterly, etc., and a common base is needed for comparison.
+###### Note: Only two Fed Minutes releases started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. Most economic data only comes out monthly, quarterly, etc., and a common base is needed for comparison.
 
 
 ```{r treasury maturities, echo = FALSE, results = "show"}
@@ -834,7 +835,7 @@ fed_topics_beta %>%
   mutate(term = reorder(term, beta)) %>% 
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = F) +
-  facet_wrap(~ topic, scales = "free") +
+  facet_wrap(~ topic, scales = "free", ncol = 2) +
   coord_flip()
 ```
 
