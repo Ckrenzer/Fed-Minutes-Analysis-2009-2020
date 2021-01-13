@@ -47,8 +47,5 @@ scrap work.R
 # Sample files
 Sample/
 
-# export PDF
-Minutes-Analysis.pdf
-
 # export Rmd file
 Minutes-Analysis.Rmd
