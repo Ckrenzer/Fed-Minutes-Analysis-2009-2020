@@ -23,10 +23,7 @@ The data in this analysis includes all FOMC Minutes between January 28th, 2009 t
 
 $~$
 
-I will explore these texts using various text mining approaches including sentiment analysis, tf-idf, and topic modeling.
-
-
-Should you want to try running this code on your own computer, know that it will take more than a few hours to run! Instead, I suggest you run the code using a small sample of documents.
+I will explore these texts using various text mining approaches including sentiment analysis, tf-idf, and topic modeling in order to identify trends within the FOMC's Meetings.
 
 
 ```{r setup, include=FALSE}
@@ -833,14 +830,14 @@ lda captures document-topic probabilities (a document can be some lines of text,
 latent Dirichlet allocation algorithm
 
 EVERY DOCUMENT IS A MIXTURE OF TOPICS
-   We imagine that each document may contain words from several topics in particular proportions. For example,
-   in a two-topic model we could say "Document 1 is 90% topic A and 10% topic B, while Document 2 is 30% topic A
-   and 70% topic B."
+We imagine that each document may contain words from several topics in particular proportions. For example,
+in a two-topic model we could say "Document 1 is 90% topic A and 10% topic B, while Document 2 is 30% topic A
+and 70% topic B."
 EVERY TOPIC IS A MIXTURE OF WORDS
-   For example, we could imagine a two-topic model of American news, with one topic for "politics" and one for
-   "entertainment." The most common words in the politics topic might be "President," "Congress," and
-   "government," while the entertainment topic may be made up of words such as "movies," "television," and
-   "actor." Importantly, words can be shared between topics; a word like "budget" might appear in both equally.
+For example, we could imagine a two-topic model of American news, with one topic for "politics" and one for
+"entertainment." The most common words in the politics topic might be "President," "Congress," and
+"government," while the entertainment topic may be made up of words such as "movies," "television," and
+"actor." Importantly, words can be shared between topics; a word like "budget" might appear in both equally.
 
 
 
@@ -857,18 +854,18 @@ I want to try the topic model a few times--one where I just provide the document
 fed_lda <- unigram_unnested_documents %>% 
   count(doc_id, word) %>% 
   anti_join(tidytext::stop_words, by = "word") %>% 
-  filter(word != parsing_errors_and_formalities) %>% 
+  filter(!word %in% parsing_errors_and_formalities) %>% 
   tidytext::cast_dtm(doc_id, word, n) %>% 
   topicmodels::LDA(k = 8, control = list(seed = 2021))
 
 
 # Extracts the per-topic-per-word probabilities ("beta") from the model
 # "aaa" has a 0.000116 probability being generated from topic 3.
-fed_topics <- tidytext::tidy(fed_lda, matrix = "beta")
+fed_topics_beta <- tidytext::tidy(fed_lda, matrix = "beta")
 
 
 # A ggplot of the most common words in each topic
-fed_topics %>% 
+fed_topics_beta %>% 
   group_by(topic) %>% 
   slice_max(order_by = beta, n = 7) %>% 
   ungroup() %>% 
@@ -878,129 +875,59 @@ fed_topics %>%
   geom_col(show.legend = F) +
   facet_wrap(~ topic, scales = "free") +
   coord_flip()
+```
+
+There is much overlap in the topics the model found. This is not surprising--FOMC Minutes usually have a predictable agenda they need to get through. Topic modeling using the latend Dirichlet allocation algorithm allows terms to be used more than once; since people use the same term in different contexts, the model includes the same terms in different topics.
 
 
-# We may be interested in those words that have the greatest difference between groups (as opposed to most likely to appear) in each category. For this, We can use a log odds ratio to calculate this difference. For example, which words are most different between topic 5 and topic 6?
-fed_topics %>% 
+
+We may instead be interested in those words having the greatest difference between groups (as opposed to most likely to appear in a particular topic) in each category. We can use a log odds ratio to calculate this difference. For example, which words are most different between topic 8 and topic 1? (For those unfamiliar with the math, just know that the negative values are terms belonging to topic 1 and the positive values belong to topic 8.)
+
+
+```{r echo = TRUE, results = "show"}
+
+fed_topics_beta %>% 
   mutate(topic = paste0("topic", topic)) %>% 
   tidyr::pivot_wider(names_from = topic, values_from = beta) %>% 
-  filter(topic8 > 0.001 |topic2 > 0.001) %>% 
-  mutate(log_ratio = log(topic8 / topic2)) %>% 
+  filter(topic8 > 0.001 |topic1 > 0.001) %>% 
+  mutate(log_ratio = log(topic8 / topic1)) %>% 
   filter(abs(log_ratio) > 10) %>% 
-  ggplot(aes(x = reorder(x = term, log_ratio), y = log_ratio)) +
+  mutate(bar = ifelse(log_ratio < 0, "topic1", "topic8")) %>% 
+  ggplot(aes(x = reorder(x = term, log_ratio), y = log_ratio, fill = bar)) +
   geom_col() +
-  ggtitle("The negative values are the topic on the left") +
-  ylab("Log2 ratio of beta in topic 8 / topic 2") +
+  ylab("Log2 ratio of beta in topic 8 / topic 1") +
   xlab(NULL) +
+  ggtitle(NULL) +
   theme_bw() +
   coord_flip()
-# Topic 1 contains the negative terms
-
-
-
-
-
-
-# This visualization lets us understand the two topics that were extracted from the articles. The most common words in
-# topic 1 include "percent," "million," "billion," and "company," which suggests it may represent business or financial
-# news. Those most common in topic 2 include "president," "government," and "soviet," suggesting that this topic
-# represents political news. One important observation about the words in each topic is that some words, such as "new"
-# and "people," are common within both topics. This is an advantage of topic modeling as opposed to "hard clustering"
-# methods: topics used in natural language could have some overlap in terms of words.
-
-# As an alternative, we could consider the terms that had the GREATEST DIFFERENCE in beta between topic 1 and topic 2.
-# This can be estimated based on the log ratio of the two:
-
-# log2(beta2 / beta1)
-
-# A log ratio is useful because it makes the difference symmetrical: B2 is being twice as large leads to a log ratio
-# of 1, while B1 being twice as large results in -1.
-
-# To constrain it to a set of especially relevant words, we can filter for relatively common words, such as those that
-# have a beta greater than 1/1000 in at least one topic.
-
-
-
-
-
-
-
-
-
-
-
-# We can see that the words more common in topic 2 include political parties such as "democratic" and "republican,"
-# as well as politician's names such as "dukakis" and "gorbachev." Topic 1 is more characterized by currencies like
-# "yen" and "dollar," as well as financial terms such as "index," "prices," and "rates." This helps confirm that the
-# two topics the algorithm identified are political and financial news.
-
-```
-
-In other contexts, we could perform a log-odds ratio to find which words are more or less likely to come from specific documents. For example, we could separate the FOMC Minutes by date according to presidential administration. Let's see which words are most likely to occur during Obama's tenure and those during Trump's time in office.
-############## We could try grouping the documents by political administration and perform a log-odds ratio!
-
-
-Instead of determining some topics and calculating probabilities of particular words belonging to these topics, we can determine the probability of words belonging to certain documents. We can do this by casting the matrix to "gamma" instead of "beta."
-
-
-```{r echo = FALSE}
-
-
 
 
 ```
 
+If nothing else, we are all familiar with topic 1...
+
+$~$
+
+In addition to finding which words belong to which topics, we can also determine which topics belong to which documents. Since we know roughly when topic 1 is identified, we can observe just when these topics were most likely to occur.
+
+```{r echo = TRUE, results = "show"}
+
+fed_topics_gamma <- tidytext::tidy(fed_lda, matrix = "gamma")
+
+fed_topics_gamma %>% 
+  mutate(document = lubridate::as_date(stringr::str_sub(document, start = 12))) %>% 
+  mutate(topic = as.character(topic), topic = paste0("Topic ", topic)) %>% 
+  ggplot(aes(document, gamma)) +
+  geom_line(size = 1.02, show.legend = F) +
+  facet_wrap(~topic, ncol = 2) +
+  xlab("Date") +
+  ylab("gamma") +
+  theme_bw()
 
 
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-echo = FALSE hides the code, but will evaluate it and show its output in the knit.
-
-include = FALSE hides the code AND the output from the knit, but will evaluate the code silently.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-throw a cor.test() in there somewhere...
-
-use some glm()'s
-
-
-
-stop making the script sound like a tutorial and more like an exploration.
-
-
-
-
-
-
-
+In the event you did not believe me, the probability of topic 1 appearing in FOMC Minutes shoots up into the sky during meetings in 2020.
 
 
 
@@ -1018,8 +945,3 @@ Loughran, T. and McDonald, B. (2016). Textual analysis in accounting and finance
 
 #nrc
 http://www.purl.com/net/lexicons Mohammad, S. M. & Turney, P. D. (2010) Emotions evoked by common words and phrases: Using Mechanical Turk to create an emotion lexicon, In Proceeding of Workshop on Computational Approaches to Analysis and Generation of Emotion in Text, 26-34.
-
-
-
-
-
