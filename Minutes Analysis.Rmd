@@ -184,12 +184,6 @@ for(i in stringr::str_remove_all(list.files(dirs[2:3]), "\\.pdf")){
 # Arranging the documents in chronological order
 documents <- arrange(documents, doc_id)
 
-
-rm(old_format)
-rm(new_format)
-rm(i)
-rm(dirs)
-
 ```
 
 
@@ -202,7 +196,7 @@ We will do both, but let's begin by taking a look at the dataset:
 > `r stringr::str_sub(documents$text[1], start = 8489, end = 8802)`
 
 
-The quote above is an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words have parsing irregularities, such as the lack of space between characters on the parentheses surrounding "millions of dollars equivalent." This section of text was chosen to represent the 'worst-case-scenario' for parsing these texts. No algorithm is perfect, but one can see these errors are infrequent and therefore unlikely to heavily skew the results of the analysis. The text details the relations with the Bank of Canada and the Bank of Mexico--tables typically have issues parsing.
+The quote above is an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words have parsing irregularities, such as the lack of space between characters on the parentheses surrounding "millions of dollars equivalent." This section of text was chosen to represent the 'worst-case-scenario' for parsing these texts. No algorithm is perfect, but one can see these errors are infrequent and therefore unlikely to heavily skew the results of the analysis. The text is from a table detailing relations with the Bank of Canada and the Bank of Mexico--tables typically have issues parsing.
 
 $~$
 
@@ -237,9 +231,9 @@ head(unigram_unnested_documents %>%
 ```
 
 
-These are words one expects to find in official banking documents; the terms "committee," "inflation," and "market" dominate across all `r nrow(documents)` minutes. These words may be insightful for some people, but most people would agree that most of these terms are uninteresting finds. Much of what Brian wrote is generic banking lingo from which we cannot derive much meaning. We can still use these terms to draw interesting conclusions with these terms. We will visualize their usage over time, for example, but we first want to know which terms are unique to different documents.
+These are words one expects to find in official banking documents; the terms "committee," "inflation," and "market" dominate across all `r nrow(documents)` meetings. These words may be insightful to some, but most people would agree that most of these terms are uninteresting finds. Much of what Brian wrote is generic banking lingo from which little meaning can be derived. We can still use these terms to draw interesting conclusions with these terms, however; we will visualize their usage over time, for example, but we first want to know which terms are unique to different documents.
 
-To extract words that have more significance in each document, we can add a weighting factor to the terms with the tf-idf statistic.
+To extract words that have most significance in each document, we can add a weighting factor to terms with the tf-idf statistic.
 
 
 
@@ -304,7 +298,7 @@ unigram_unnested_documents %>%
 ```
 
 
-Now that's something interesting! The Fed uses many different acronyms to describe its programs. To name a few, "yct" is the "yield control target," talf is short for "term asset-backed securities loan facilities," and "elb" stands for "effective lower bound."
+That's better. The Fed uses many different acronyms to describe its programs. To name a few, "yct" is the "yield control target," talf is short for "term asset-backed securities loan facilities," and "elb" stands for "effective lower bound."
 
 $~$
 
@@ -380,7 +374,9 @@ change_over_time(data = unigram_unnested_documents,
 ```
 
 
-We don't have to compare the words used in FOMC meetings to words in FOMC meetings only, of course. Why don't we compare the Fed's use of "inflation" with 10 year bond yields? Only two Fed Minutes releases started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. Most economic data only comes out monthly, quarterly, etc., and a common base is needed for comparison.
+We don't have to compare the words used in FOMC meetings to words in FOMC meetings only, of course. Why don't we compare the Fed's use of "inflation" with 10 year bond yields? 
+
+######Note: Only two Fed Minutes releases started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. Most economic data only comes out monthly, quarterly, etc., and a common base is needed for comparison.
 
 
 ```{r treasury maturities, echo = FALSE, results = "show"}
@@ -429,7 +425,7 @@ As we can see, the inflation rate and the constant maturity rate seem to be inve
 
 ## N-GRAMS
 
-We do not need to restrict our analysis to one word. We can extract multiple words, or "n-grams," to add context to the phrases the Fed uses. We can do the same analysis in the previous sections with two or three words instead of one. After some investigation, know that the words "federal," "reserve," "committee," and "intermeeting" are also removed, as I suspect they mostly refer to formalities within the documents, not the topics discussed at FOMC meetings.
+We do not need to restrict our analysis to one word. We can extract multiple words, or "n-grams," to add context to the phrases the Fed uses. We can do the same analysis in the previous sections with two or three words instead of one. After some investigation, know that the words "federal," "reserve," "committee," and "intermeeting" are also removed, as I suspect they mostly refer to formalities within the documents and not necessarily to the topics discussed at FOMC meetings.
 
 First, the most common pairs of words:
 
@@ -524,12 +520,7 @@ documents %>%
 ```
 
 
-These terms might benefit from exploring combinations of four words to find words that precede these phrases, such as "_strong_ labor market conditions" or "_long_ term inflation expectations." This is not an optimal path to pursue, however, because the more combinations of terms to find, the smaller the sample size becomes. Going from two to three terms made the "# of Uses" drop by about one-third.
-
-
-
-
-
+These terms might benefit from exploring combinations of four words to find words that precede these phrases, such as "_strong_ labor market conditions" or "_long_ term inflation expectations." This is not an optimal path to pursue, however, because the more combinations of terms to find, the smaller the data set becomes. Going from two to three terms made the "# of Uses" drop by about one-third.
 
 
 
@@ -540,13 +531,13 @@ These terms might benefit from exploring combinations of four words to find word
 ## Sentiment Analysis
 
 
-Now that we have terms stored as bigrams (and trigrams!), we can perform sentiment analysis on the Fed Minutes releases. Various lexicons have been built up over the years to determine of a document. In this case, the Loughran and McDonald dictionary of financial sentiment words (Loughran and McDonald 2011). Other popular lexicons, such as the "AFINN," "NRC," or "BING" are not suited for documents coming from a bank--these three lexicons assign values to terms such as "share" or "risk" despite the fact those words may not carry any connotation in a financial context.
+Now that we have terms stored as bigrams (and trigrams!), we can perform sentiment analysis on the Fed Minutes releases. Various lexicons have been built up over the years to determine of a document. In this case, the Loughran and McDonald dictionary of financial sentiment words (Loughran and McDonald 2011). Other popular lexicons, such as the "AFINN," "NRC," or "BING" are not suited for documents coming from a bank--these three lexicons assign values to terms such as "share" or "risk" despite the fact those words may not carry any connotation in a financial setting.
 
 Sentiment analysis could be used for the terms without sorting them into pairs, but this adds error when negation terms are used. _Weak_ growth does not mean the same thing as _strong_ growth, but this distinction would never be found by using only one term.
 
 Whenever negation words preface a word in the loughran lexicon, we can flip its sign or set its sentiment value to zero, ensuring negation words do not skew the true sentiment values.
 
-Before continuing to the sentiment analysis, it is important to note that most sentiment lexicons have more positive words than negative words, so the results should be considered in relation to one another. After providing the raw numbers, I will also recreate the plot with an index against another variable.
+Before continuing to the sentiment analysis, it is important to note that most sentiment lexicons have more positive words than negative words, so the results should be considered in relation to one another. For comparisons to other variables, an index is likely more appropriate.
 
 
 ```{r sentiment analysis, echo = TRUE, results = "show"}
@@ -622,7 +613,7 @@ ggraph::ggraph(bigram_unnested_documents_filtered %>%
 
 ```
 
-We see how the words relate to one another. Many are interconnected in the massive web going down the left side, but other networks are also formed for different associated words. While terms such as "participants," "market," "economic," or "inflation" dominate the large network, other networks exist largely independent of these words, such as "job gains" or "forward guidance."
+We see how the words relate to one another. Many are interconnected in the massive web going down the left side, but other networks are also formed for separate groups of associated words. While terms such as "participants," "market," "economic," or "inflation" dominate the large network, other networks exist largely independent of these words, such as "job gains" or "forward guidance."
 
 While this visualization of a Markov Chain allows us to visualize which words are typically follow one another, it does not show which words are related within documents. What do we do when we want to see which words appear in the same document (though they might not be adjacent to one another)?
 
@@ -635,7 +626,7 @@ A correlation test addresses this issue.
 
 ## Correlated Words
 
-We can calculate Pearson correlation coefficients to determine how often particular words appear with one another. Examining correlation coefficients across each of the FOMC Minutes is not ideal since each one consists of thousands of words, many of them being used in each document. The most highly correlated words, broken down by document as opposed to by another tokenization, that are not _perfectly correlated_ are still provided below, however.
+We can calculate Pearson correlation coefficients to determine how often particular words appear with one another. Examining correlation coefficients across each of the FOMC Minutes is not ideal since each one consists of thousands of words, many of them being used in each document. The most highly correlated words, broken down by document as opposed to by another tokenization, _that are not perfectly correlated_ are still provided below, however. Many of the documents are more than ten pages long and refer to similar topics, so many of the words will have perfect correlation.
 
 ```{r correlation all docs, echo = FALSE, results = "show"}
 
@@ -656,7 +647,7 @@ knitr::kable(unigram_unnested_documents %>%
 ```
 
 
-As implied above, what should instead be done is break the documents into smaller pieces and calculate correlation coefficients for each of these subsections. To ensure proper nouns do not dominate the results with perfect correlation (and because R said my computer ran out of memory =/), only those terms which appear more than 100 times will be used to calculate the coefficients. Also note that a significant number of words were removed--words such as "secretary," "jerome," "tuesday," "dallas," "secretary," "governors," and many other related terms--to keep only the information we are interested in.
+As implied above, what should instead be done is break the documents into smaller pieces and calculate correlation coefficients for each of these subsections. To ensure proper nouns do not dominate the results with perfect correlation (and because R said my computer ran out of memory =/), only those terms which appear more than 100 times will be used to calculate the coefficients. Also note that a significant number of words were removed--words such as "secretary," "jerome," "tuesday," "dallas," "secretary," "governors," and many similar terms--to keep only the information we are interested in.
 
 
 ```{r correlation doc sections, echo = FALSE, results = "show"}
@@ -759,7 +750,7 @@ knitr::kable(corr %>%
 
 ```
 
-The remainder of this analysis uses data from the above table.
+The remainder of this section uses data from the above table.
 
 $~$
 
@@ -784,7 +775,7 @@ corr %>%
 
 ```
 
-Pay attention to the scale and note that it is not the same for all words in the above graph. These graphs paint a similar picture to the graphs from the N-grams section, though this graph is a bit more telling because even though words that frequently appear next to each other are included in these graphs (Ex. "[labor] force participation"), words that often occur in the same sentence or set of sentences appear as well (Ex. "family" and "disposable" are unlikely to be written after one another in a document for n-grams to find, though correlation coefficients still recognize the co-occurrences).
+Pay attention to the scale and note that it is not the same for all words. These graphs paint a similar picture to the graphs from the N-grams section, though this graph is a bit more telling because even though words that frequently appear next to each other are included in these graphs (Ex. "[labor] force participation"), words that often occur in the same sentence or set of sentences appear as well (Ex. "family" and "disposable" are unlikely to be written after one another in a document, the only way for n-grams to find a connection between the two, though correlation coefficients still recognize these co-occurrences).
 
 One of the best uses of these correlations is to pick interesting words and find how other terms relate to them in a network, similar to that from the previous section. Note that since there is no directional relationship, there are no arrows on the graph. Since the number of words is enormous, only those terms with at a correlation of at least 0.6 are included.
 
@@ -814,39 +805,9 @@ As noted, this graph is very similar to the one from the Markov Chains section. 
 
 ## Topic Modeling
 
-Speaking of topics...
+Speaking of topics, we can use algorithms to identify topics within the dataset. I will be using the latent Dirichlet allocation algorithm to identify these topics. LDA captures document-topic probabilities (document is defined loosely as "a group of words"). Every document is a mixture of topics, and every topic is a mixture of words. For example, the topics in the FOMC Minutes of January 28th, 2009 could be 40% inflation, 30% financial markets, and 30% labor markets (_every document is a mixture of topics_). The inflation could be made up of words such as "rate," "cpi," etc., while the financial markets topic could be made up of terms such as "rate," "yield," etc. (_every topic is a mixture of words_).
 
-
-
-
-Check out: line 1953, line 2008, line 2433, line 2765
-
-line 3707
-
-
-lda captures document-topic probabilities (a document can be some lines of text, remember)
-
-
-latent Dirichlet allocation algorithm
-
-EVERY DOCUMENT IS A MIXTURE OF TOPICS
-We imagine that each document may contain words from several topics in particular proportions. For example,
-in a two-topic model we could say "Document 1 is 90% topic A and 10% topic B, while Document 2 is 30% topic A
-and 70% topic B."
-EVERY TOPIC IS A MIXTURE OF WORDS
-For example, we could imagine a two-topic model of American news, with one topic for "politics" and one for
-"entertainment." The most common words in the politics topic might be "President," "Congress," and
-"government," while the entertainment topic may be made up of words such as "movies," "television," and
-"actor." Importantly, words can be shared between topics; a word like "budget" might appear in both equally.
-
-
-
-
-
-
-
-
-I want to try the topic model a few times--one where I just provide the document and one where the document is broken up into smaller pieces.
+You might have noticed that the word "rate" appeared in both the inflation and financial markets topics. That is fine--unlike other unsupervised learning/clustering methods, LDA allows words to be reused in different topics. Just as two words have different meanings in human language, two words can appear in different topics with LDA.
 
 ```{r lda and common words per topic, echo = FALSE, results = "show"}
 
@@ -877,9 +838,7 @@ fed_topics_beta %>%
   coord_flip()
 ```
 
-There is much overlap in the topics the model found. This is not surprising--FOMC Minutes usually have a predictable agenda they need to get through. Topic modeling using the latend Dirichlet allocation algorithm allows terms to be used more than once; since people use the same term in different contexts, the model includes the same terms in different topics.
-
-
+There is much overlap in the topics the model found. This is not surprising--FOMC Minutes usually have a predictable agenda they need to get through.
 
 We may instead be interested in those words having the greatest difference between groups (as opposed to most likely to appear in a particular topic) in each category. We can use a log odds ratio to calculate this difference. For example, which words are most different between topic 8 and topic 1? (For those unfamiliar with the math, just know that the negative values are terms belonging to topic 1 and the positive values belong to topic 8.)
 
@@ -935,13 +894,6 @@ In the event you did not believe me, the probability of topic 1 appearing in FOM
 
 ## References
 
-#bonds
 Board of Governors of the Federal Reserve System (US), 10-Year Treasury Constant Maturity Rate [DGS10], retrieved from FRED, Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/DGS10, January 7, 2021.
 
-
-# loughran
-Loughran, T. and McDonald, B. (2016). Textual analysis in accounting and finance: A survey. Journal of Accounting Research 54(4), 1187-1230. doi: 10.2139/ssrn.2504147 https://sraf.nd.edu/textual-analysis/resources/#Master%20Dictionary
-
-
-#nrc
-http://www.purl.com/net/lexicons Mohammad, S. M. & Turney, P. D. (2010) Emotions evoked by common words and phrases: Using Mechanical Turk to create an emotion lexicon, In Proceeding of Workshop on Computational Approaches to Analysis and Generation of Emotion in Text, 26-34.
+Loughran, T. and McDonald, B. (2016). Textual analysis in accounting and finance: A survey. Journal of Accounting Research 54(4), 1187-1230. doi: 10.2139/ssrn.2504147 https://sraf.nd.edu/textual-analysis/resources/#Master%20Dictionary.
