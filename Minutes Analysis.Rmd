@@ -26,7 +26,7 @@ $~$
 I will explore these texts using various text mining approaches including sentiment analysis, tf-idf, and topic modeling in order to identify trends within the FOMC's Meetings.
 
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       results = "hide",
                       error = F,
@@ -40,7 +40,7 @@ knitr::opts_chunk$set(echo = FALSE,
 I recommend pulling the information using the HTML version of these meetings. The PDFs are a nightmare to clean (speaking from experience)! If you do decide to read the pdf text into R, I suggest using the extract_text() function from the tabulizer package because it is smart enough to recognize columns of selectable PDF text. Other popular packages for reading in PDFs, such as readtext or pdftools, will only read across the page left to right, then down--despite the pages containing two separate columns of text.
 
 
-```{r, echo = TRUE}
+```{r packages, echo = TRUE}
 # The names of all your installed packages
 package_names <- rownames(installed.packages())
 
@@ -82,7 +82,7 @@ Since I started this process using the pdf files, I will use their file names to
 There are two formats for the HTML file--one for the Fed Minutes before 2012 and those released on or after that year. With this in mind, two functions will be used to read in the different formats. The documents are parsed in chronological order but are also arranged after being added to the tibble, in the event that something were to happen to the order of the files in the "Fed Minutes Releases" folder from which these names were pulled.
 
 
-```{r, echo = TRUE}
+```{r import, echo = TRUE}
 
 # The code in this section "makes" the dataset
 old_format <- function(id){
@@ -163,7 +163,8 @@ dirs <- c("Fed Minutes Releases/Obama Era/Pre 2012/",
 documents <- tibble::tibble(doc_id = NULL, text = NULL)
 
 
-
+# I'm not crazy about for loops, but I think this code is
+# straightforward enough to follow
 # Reading in the old formats (pre-2012)
 for(i in stringr::str_remove_all(list.files(dirs[1]), "\\.pdf")){
   documents <- bind_rows(documents, old_format(i))
@@ -216,7 +217,7 @@ Brian F. Madigan is the Secretary who writes all these meetings--he has been the
 After removing 'stop words'--those words that are extremely common and provide very little meaning (Ex. "the," "of," "a," "to," etc.)--which words does Brian use most frequently?
 
 
-```{r, echo = FALSE, results = "show"}
+```{r all docs, echo = FALSE, results = "show"}
 unigram_unnested_documents <- documents %>% 
   tidytext::unnest_tokens(word, text)
 
@@ -264,7 +265,7 @@ $~$
 You can think of tf-idf as a formula that finds terms that occur frequently--but not too frequently. Let's see which words are most important among all Fed Minutes releases, as measured by the tf-idf:
 
 
-```{r echo = FALSE, results = "show"}
+```{r tf-idf table, echo = FALSE, results = "show"}
 
 knitr::kable(head(unigram_unnested_documents %>% 
                     count(doc_id, word, sort = T) %>%
@@ -280,7 +281,7 @@ I'm tired of seeing those words everywhere. The correct interpretation of this t
 Let's see a plot of these terms after removing these terms:
 
 
-```{r echo = FALSE, results = "show"}
+```{r tf-idf graph, echo = FALSE, results = "show"}
 
 unigram_unnested_documents %>% 
   count(doc_id, word, sort = T) %>%
@@ -328,7 +329,7 @@ Clearly, then, we can see the value brought from this statistic. It allows us to
 In addition to finding which terms are important to specific documents (FOMC Meetings in this instance), we can also calculate the usage of words over time. We can find some cool trends, such as the following:
 
 
-```{r echo = FALSE, results = "show", fig.height = 10}
+```{r change over time, echo = FALSE, results = "show", fig.height = 10}
 
 change_over_time <- function(data, word1, word2, graph_title){
   
@@ -382,7 +383,7 @@ change_over_time(data = unigram_unnested_documents,
 We don't have to compare the words used in FOMC meetings to words in FOMC meetings only, of course. Why don't we compare the Fed's use of "inflation" with 10 year bond yields? Only two Fed Minutes releases started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. Most economic data only comes out monthly, quarterly, etc., and a common base is needed for comparison.
 
 
-```{r echo = FALSE, results = "show"}
+```{r treasury maturities, echo = FALSE, results = "show"}
 
 bonds <- readr::read_csv("10 Yr Treasury Constant Maturity Rate Index.csv",
                          col_names = T)
@@ -418,7 +419,6 @@ ggplot() +
   theme_bw()
 
 rm(inf_mentions)
-rm(unigram_unnested_documents)
 
 ```
 
@@ -434,7 +434,7 @@ We do not need to restrict our analysis to one word. We can extract multiple wor
 First, the most common pairs of words:
 
 
-```{r echo = F, results = "show"}
+```{r bigram uses graph, echo = F, results = "show"}
 
 # The bigrams
 bigram_unnested_documents <- documents %>% 
@@ -469,7 +469,7 @@ bigram_unnested_documents_filtered %>%
 Using two words for the analysis allows us to ask more specific questions about the data. It allows us to ask things like, how has the Fed's use of "financial markets" compared with its use of "labor market" over time?
 
 
-```{r, echo = F, results = "show"}
+```{r finc vs labor, echo = F, results = "show"}
 
 
 # Usage of "financial markets" vs. "labor market" over time
@@ -497,7 +497,7 @@ bigram_unnested_documents_filtered %>%
 We can extend this line of thinking further with pairings of three words:
 
 
-```{r echo = FALSE, results = "show"}
+```{r trigram uses graph, echo = FALSE, results = "show"}
 
 
 # The trigrams bar chart
@@ -549,7 +549,7 @@ Whenever negation words preface a word in the loughran lexicon, we can flip its 
 Before continuing to the sentiment analysis, it is important to note that most sentiment lexicons have more positive words than negative words, so the results should be considered in relation to one another. After providing the raw numbers, I will also recreate the plot with an index against another variable.
 
 
-```{r echo = TRUE, results = "show"}
+```{r sentiment analysis, echo = TRUE, results = "show"}
 
 negation_words <- c("not", "no", "weak", "low", "never", "without", "slow")
 
@@ -601,7 +601,7 @@ Look at that dip at the beginning of the 2020 recession! They don't call economi
 
 To visualize the relationship between the words further, we can arrange groups of words into a network.
 
-```{r echo = FALSE, results = "show", fig.height = 12.5, fig.width = 11}
+```{r bigram markov chain, echo = FALSE, results = "show", fig.height = 12.5, fig.width = 11}
 
 set.seed(2021)
 ggraph::ggraph(bigram_unnested_documents_filtered %>% 
@@ -637,7 +637,7 @@ A correlation test addresses this issue.
 
 We can calculate Pearson correlation coefficients to determine how often particular words appear with one another. Examining correlation coefficients across each of the FOMC Minutes is not ideal since each one consists of thousands of words, many of them being used in each document. The most highly correlated words, broken down by document as opposed to by another tokenization, that are not _perfectly correlated_ are still provided below, however.
 
-```{r echo = FALSE, results = "show"}
+```{r correlation all docs, echo = FALSE, results = "show"}
 
 knitr::kable(unigram_unnested_documents %>% 
                anti_join(tidytext::stop_words, by = "word") %>% 
@@ -656,10 +656,10 @@ knitr::kable(unigram_unnested_documents %>%
 ```
 
 
-As implied above, what should instead be done is break the documents into smaller pieces and calculate correlation coefficients for each of these subsections. To ensure proper nouns do not dominate the results with perfect correlation (and because R ran out of memory =/), only those terms which appear more than 100 times will be used to calculate the coefficients. Also note that a significant number of words were removed--words such as "secretary," "jerome," "tuesday," "dallas," "secretary," "governors," and many other related terms--to keep only the information we are interested in.
+As implied above, what should instead be done is break the documents into smaller pieces and calculate correlation coefficients for each of these subsections. To ensure proper nouns do not dominate the results with perfect correlation (and because R said my computer ran out of memory =/), only those terms which appear more than 100 times will be used to calculate the coefficients. Also note that a significant number of words were removed--words such as "secretary," "jerome," "tuesday," "dallas," "secretary," "governors," and many other related terms--to keep only the information we are interested in.
 
 
-```{r echo = FALSE, results = "show"}
+```{r correlation doc sections, echo = FALSE, results = "show"}
 
 parsing_errors_and_formalities <- c("secretary",
                                     "counsel",
@@ -766,7 +766,7 @@ $~$
 Let's see a nice graph showing the top 10 correlations of six words:
 
 
-```{r echo = FALSE, results = "show"}
+```{r correlation for chosen words, echo = FALSE, results = "show"}
 
 corr %>% 
   filter(item1 %in% c("markets", "money", "regulation", "force", "statistics", "family")) %>% 
@@ -789,7 +789,7 @@ Pay attention to the scale and note that it is not the same for all words in the
 One of the best uses of these correlations is to pick interesting words and find how other terms relate to them in a network, similar to that from the previous section. Note that since there is no directional relationship, there are no arrows on the graph. Since the number of words is enormous, only those terms with at a correlation of at least 0.6 are included.
 
 
-```{r echo = FALSE, results = "show", fig.height = 10.5, fig.width = 11}
+```{r correlation network, echo = FALSE, results = "show", fig.height = 10.5, fig.width = 11}
 
 set.seed(2021)
 corr %>% 
@@ -848,7 +848,7 @@ For example, we could imagine a two-topic model of American news, with one topic
 
 I want to try the topic model a few times--one where I just provide the document and one where the document is broken up into smaller pieces.
 
-```{r echo=F}
+```{r lda and common words per topic, echo = FALSE, results = "show"}
 
 # This takes around 3 min 45 sec to run
 fed_lda <- unigram_unnested_documents %>% 
@@ -884,7 +884,7 @@ There is much overlap in the topics the model found. This is not surprising--FOM
 We may instead be interested in those words having the greatest difference between groups (as opposed to most likely to appear in a particular topic) in each category. We can use a log odds ratio to calculate this difference. For example, which words are most different between topic 8 and topic 1? (For those unfamiliar with the math, just know that the negative values are terms belonging to topic 1 and the positive values belong to topic 8.)
 
 
-```{r echo = TRUE, results = "show"}
+```{r comparing topics, echo = TRUE, results = "show"}
 
 fed_topics_beta %>% 
   mutate(topic = paste0("topic", topic)) %>% 
@@ -910,7 +910,7 @@ $~$
 
 In addition to finding which words belong to which topics, we can also determine which topics belong to which documents. Since we know roughly when topic 1 is identified, we can observe just when these topics were most likely to occur.
 
-```{r echo = TRUE, results = "show"}
+```{r topics by date, echo = TRUE, results = "show"}
 
 fed_topics_gamma <- tidytext::tidy(fed_lda, matrix = "gamma")
 
