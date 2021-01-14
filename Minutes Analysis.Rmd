@@ -804,7 +804,7 @@ Speaking of topics, we can use algorithms to identify topics within the dataset.
 
 You might have noticed that the word "rate" appeared in both the inflation and financial markets topics. That is fine--unlike other unsupervised learning/clustering methods, LDA allows words to be reused in different topics. Just as two words have different meanings in human language, two words can appear in different topics with LDA.
 
-```{r lda and common words per topic, echo = FALSE, results = "show", fig.height = 9.5}
+```{r lda and common words per topic, echo = FALSE, results = "show", fig.height = 6}
 
 # This took around 3 min 45 sec to run
 fed_lda <- unigram_unnested_documents %>% 
