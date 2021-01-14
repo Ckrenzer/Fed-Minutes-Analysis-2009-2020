@@ -812,7 +812,7 @@ You might have noticed that the word "rate" appeared in both the inflation and f
 
 ```{r lda and common words per topic, echo = FALSE, results = "show"}
 
-# This takes around 3 min 45 sec to run
+# This took around 3 min 45 sec to run
 fed_lda <- unigram_unnested_documents %>% 
   count(doc_id, word) %>% 
   anti_join(tidytext::stop_words, by = "word") %>% 
@@ -870,7 +870,7 @@ $~$
 
 In addition to finding which words belong to which topics, we can also determine which topics belong to which documents. Since we know roughly when topic 1 is identified, we can observe just when these topics were most likely to occur.
 
-```{r topics by date, echo = TRUE, results = "show"}
+```{r topics by date, echo = FALSE, results = "show"}
 
 fed_topics_gamma <- tidytext::tidy(fed_lda, matrix = "gamma")
 
