@@ -7,7 +7,7 @@ output:
   html_document: default
 ---
 ## Introduction
-The Federal Reserve is the central bank of the United States. Central banks conduct a country's monetary policy (policy pertaining to money--interest rates, regulation of the banking sector, etc.) in the aims of achieving it's 'dual mandate' of full employment (loosely defined as "anyone who wants a job can get a job") and price stability (predictable price changes throughout the United States as a whole). You can read more about what the Fed is and what they do [on their website](https://www.federalreserve.gov/faqs/about_12594.htm). For all of you Fed haters out there, thinking that I'm misleading people by linking to the Fed's website, do not disparage! Perhaps [one of these articles](https://mises.org/topics/fed) is more your style.
+The Federal Reserve is the central bank of the United States. Central banks conduct a country's monetary policy (policy pertaining to money--interest rates, regulation of the banking sector, etc.) in the aims of achieving it's 'dual mandate' of full employment (loosely defined as "anyone who wants a job can get a job") and price stability (predictable price changes throughout the United States as a whole). You can read more about what the Fed is and what they do [on their website](https://www.federalreserve.gov/faqs/about_12594.htm). For all of you Fed haters out there who think I'm misleading people by linking to the Fed's website, do not disparage! Perhaps [one of these articles](https://mises.org/topics/fed) is more your style.
 
 
 
@@ -190,7 +190,7 @@ The data is almost ready for analysis. We now have two columns: one for the docu
 We will do both, but let's begin by taking a look at the dataset:
 
 
-> `r stringr::str_sub(documents$text[1], start = 8489, end = 8802)`
+> `r stringr::str_sub(documents$text[1], start = 8482, end = 8802)`
 
 
 The quote above is an excerpt from the Minutes release for the meeting dated January 28th, 2009. You might notice that some words have parsing irregularities, such as the lack of space between characters on the parentheses surrounding "millions of dollars equivalent." This section of text was chosen to represent the 'worst-case-scenario' for parsing these texts. No algorithm is perfect, but one can see these errors are infrequent and therefore unlikely to heavily skew the results of the analysis. The text is from a table detailing relations with the Bank of Canada and the Bank of Mexico--tables typically have issues parsing.
@@ -228,7 +228,7 @@ head(unigram_unnested_documents %>%
 ```
 
 
-These are words one expects to find in official banking documents; the terms "committee," "inflation," and "market" dominate across all `r nrow(documents)` meetings. These words may be insightful to some, but most people would agree that most of these terms are uninteresting finds. Much of what Brian wrote is generic banking lingo from which little meaning can be derived. We can still use these terms to draw interesting conclusions with these terms, however; we will visualize their usage over time, for example, but we first want to know which terms are unique to different documents.
+These are words one expects to find in official banking documents; the terms "committee," "inflation," and "market" dominate across all `r nrow(documents)` meetings. These words may be insightful to some, but most people would agree that most of these terms are uninteresting finds. Much of what Brian wrote is generic banking lingo from which little meaning can be derived. We can still use these terms to draw interesting conclusions, however; we will visualize their usage over time, for example, but we first want to know which terms are unique to specific documents.
 
 To extract words that have most significance in each document, we can add a weighting factor to terms with the tf-idf statistic.
 
@@ -241,14 +241,14 @@ To extract words that have most significance in each document, we can add a weig
 
 ## TF-IDF
 
-The tf-idf statistic is designed to reduce the importance of words that occur often across documents. The math behind it is based on the natural logarithm. It is the product of the 'term frequency' and 'inverse document frequency:
+The tf-idf statistic is designed to reduce the importance of words that occur often across documents. The math behind it is based on the natural logarithm. It is the product of the 'term frequency' and 'inverse document frequency':
 
 _Term Frequency = (# of Occurrences in Document) / (# of Unique Words in Document)_
 
 _Inverse Document Frequency = ln((Total # of Docs in Corpus) / (# of Docs where Term Appears))_
 
 Therefore...
-__tf-df = (tf * idf)__
+__tf-idf = (tf * idf)__
 
 
 $~$
@@ -268,9 +268,9 @@ knitr::kable(head(unigram_unnested_documents %>%
 ```
 
 
-I'm tired of seeing those words everywhere. The correct interpretation of this table, however, is that the words "pandemic," "coronavirus," and "outbreak" are the most important terms, as determined by the tf-idf. Let's filter out the words "pandemic," "coronavirus," "virus," and "outbreak" to see what else tf-idf deems important. Since we all know when hurricane season rolls around, let's remove the term "hurricane" as well. Finally, after some inspection, the names of the months, "shall," and "our" should also be filtered out.
+I'm tired of seeing those words everywhere. The correct interpretation of this table, however, is that the words "pandemic," "coronavirus," and "outbreak" are the most important terms, as determined by the tf-idf. Let's filter out the words "pandemic," "coronavirus," "virus," and "outbreak" to see what else tf-idf deems important. Finally, after some inspection, the names of the months, "shall," and "our" should also be filtered out.
 
-Let's see a plot of these terms after removing these terms:
+Let's see a plot of these terms after the removal:
 
 
 ```{r tf-idf graph, echo = FALSE, results = "show"}
@@ -280,7 +280,6 @@ unigram_unnested_documents %>%
   ungroup() %>% 
   filter(!word %in% c("pandemic", "coronavirus", "virus",
                       "outbreak", "our", "shall",
-                      "hurricane", "hurricanes",
                       stringr::str_to_lower(month.name))) %>% 
   tidytext::bind_tf_idf(word, doc_id, n) %>% 
   arrange(desc(tf_idf)) %>% 
@@ -296,11 +295,11 @@ unigram_unnested_documents %>%
 ```
 
 
-That's better. The Fed uses many different acronyms to describe its programs. To name a few, "yct" is the "yield control target," talf is short for "term asset-backed securities loan facilities," and "elb" stands for "effective lower bound."
+That's better. The Fed uses many different acronyms to describe its programs. To name a few, "yct" is the "yield control target," talf is short for "term asset-backed securities loan facilities," and "elb" stands for "effective lower bound." In terms of weather, 2017 was a tough year for the East Coast of the United States--so much so that "hurricanes" (Hurricane Harvey was in 2017) got two of the top 10 slots.
 
 $~$
 
-You may be wondering how these terms relate to the current events at the time. Yield curve controls (yield curve targets, YCT), for instance, were a hot topic in June 2020, when the Fed was evaluating the experiences central banks across the developed world had with controlling government bond yields in response to the recession. As a matter of fact, "yct" only appeared in _one_ Fed Minutes release and appeared fifteen times! The second phrase, term asset-backed securities loan facilities (talf), was a major policy the Fed pursued in the aftermath of the Great Recession.
+Aside from the obvious, you may be wondering how these terms relate to the current events at the time. Yield curve controls (yield curve targets, YCT), for instance, were a hot topic in June 2020, when the Fed was evaluating the experiences central banks across the developed world had with controlling government bond yields in response to the recession. As a matter of fact, "yct" only appeared in _one_ Fed Minutes release and appeared fifteen times! The second phrase, term asset-backed securities loan facilities (talf), was a major policy the Fed pursued in the aftermath of the Great Recession.
 
 Clearly, then, we can see the value brought from this statistic. It allows us to identify important aspects of documents to hone in on topics of interest.
 
@@ -573,7 +572,7 @@ bigram_unnested_documents %>%
 ```
 
 
-Look at that dip at the beginning of the 2020 recession! They don't call economics the dismal science for nothing...
+Look at that dip at the beginning of the 2020 recession!
 
 
 
