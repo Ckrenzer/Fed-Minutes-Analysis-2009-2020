@@ -295,7 +295,7 @@ unigram_unnested_documents %>%
 ```
 
 
-That's better. The Fed uses many different acronyms to describe its programs. To name a few, "yct" is the "yield control target," talf is short for "term asset-backed securities loan facilities," and "elb" stands for "effective lower bound." In terms of weather, 2017 was a tough year for the East Coast of the United States--so much so that "hurricanes" (Hurricane Harvey was in 2017) took two of the top 10 slots. [The Fed took measures to provide relief in the aftermath of the storm](https://www.federalreserve.gov/supervisionreg/hurricane-harvey.htm), which explains the word's prominence.
+That's better. The Fed uses many different acronyms to describe its programs. To name a few, "yct" is the "yield control target," talf is short for "term asset-backed securities loan facilities," and "elb" stands for "effective lower bound." In terms of weather, 2017 was a tough year for the Atlantic and Gulf Coasts of the United States--so much so that "hurricanes" (Hurricanes Harvey, Irma, and Maria formed in 2017--the FOMC mentioned Harvey and Irma primarily) took two of the top 10 slots. [The Fed took measures to provide relief in the aftermath of the storms](https://www.federalreserve.gov/supervisionreg/hurricane-harvey.htm), which explains the word's prominence.
 
 $~$
 
@@ -833,6 +833,7 @@ fed_topics_beta %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = F) +
   facet_wrap(~ topic, scales = "free", ncol = 2) +
+  theme_bw() +
   coord_flip()
 
 ```
