@@ -295,7 +295,7 @@ unigram_unnested_documents %>%
 ```
 
 
-That's better. The Fed uses many different acronyms to describe its programs. To name a few, "yct" is the "yield control target," talf is short for "term asset-backed securities loan facilities," and "elb" stands for "effective lower bound." In terms of weather, 2017 was a tough year for the East Coast of the United States--so much so that "hurricanes" (Hurricane Harvey was in 2017) got two of the top 10 slots.
+That's better. The Fed uses many different acronyms to describe its programs. To name a few, "yct" is the "yield control target," talf is short for "term asset-backed securities loan facilities," and "elb" stands for "effective lower bound." In terms of weather, 2017 was a tough year for the East Coast of the United States--so much so that "hurricanes" (Hurricane Harvey was in 2017) took two of the top 10 slots. [The Fed took measures to provide relief in the aftermath of the storm](https://www.federalreserve.gov/supervisionreg/hurricane-harvey.htm), which explains the word's prominence.
 
 $~$
 
@@ -371,9 +371,12 @@ change_over_time(data = unigram_unnested_documents,
 ```
 
 
-We don't have to compare the words used in FOMC meetings to words in FOMC meetings only, of course. Why don't we compare the Fed's use of "inflation" with 10 year bond yields? 
+Of course, we don't have to restrict our comparisons of words used in FOMC meetings to other words in FOMC meetings. Why don't we compare the Fed's use of "inflation" with 10 year bond yields? 
 
-###### Note: Only two Fed Minutes releases started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. Most economic data only comes out monthly, quarterly, etc., and a common base is needed for comparison.
+###### Note: The words "employment" and "unemployment" have similar usage over time, so I picked "employment" for the graph. Their numbers could be pooled, but the purpose of these graphs is only to introduce ways of finding trends in the dataset.
+
+
+###### Note: Only a handful of FOMC meetings started on the first day of the month in the sample period, so the base will be set to 100 on November 1st, 2017. Most economic data only comes out monthly, quarterly, etc., and a common base is needed for comparison.
 
 
 ```{r treasury maturities, echo = FALSE, results = "show"}
@@ -515,7 +518,7 @@ documents %>%
 ```
 
 
-These terms might benefit from exploring combinations of four words to find words that precede these phrases, such as "_strong_ labor market conditions" or "_long_ term inflation expectations." This is not an optimal path to pursue, however, because the more combinations of terms to find, the smaller the data set becomes. Going from two to three terms made the "# of Uses" drop by about one-third.
+These terms might benefit from exploring combinations of four to find words that precede these phrases, such as "_strong_ labor market conditions" or "_long_ term inflation expectations." This is not an optimal path to pursue, however, because the more combinations of terms to find, the smaller the data set becomes. Going from two to three terms made the "# of Uses" drop by about one-third. As we will soon see, networks can find most of these combinations for us.
 
 
 
@@ -526,13 +529,13 @@ These terms might benefit from exploring combinations of four words to find word
 ## Sentiment Analysis
 
 
-Now that we have terms stored as bigrams (and trigrams!), we can perform sentiment analysis on the Fed Minutes releases. Various lexicons have been built up over the years to determine of a document. In this case, the Loughran and McDonald dictionary of financial sentiment words (Loughran and McDonald 2011). Other popular lexicons, such as the "AFINN," "NRC," or "BING" are not suited for documents coming from a bank--these three lexicons assign values to terms such as "share" or "risk" despite the fact those words may not carry any connotation in a financial setting.
+Now that we have terms stored as bigrams (and trigrams!), we can perform sentiment analysis on the Fed Minutes releases. Various lexicons have been built up over the years to determine the sentiments of a document. In this case, the Loughran and McDonald dictionary of financial sentiment words (Loughran and McDonald 2011) will be used. Other popular sentiment lexicons, such as the "AFINN," "NRC," or "BING" are not suited for documents coming from a bank--these three lexicons assign values to terms such as "share" or "risk" despite the fact those words may not carry any connotation in a financial setting.
 
-Sentiment analysis could be used for the terms without sorting them into pairs, but this adds error when negation terms are used. _Weak_ growth does not mean the same thing as _strong_ growth, but this distinction would never be found by using only one term.
+Sentiment analysis could be used for the terms without sorting them into pairs, but this adds error when negation terms are used. _Weak_ growth does not mean the same thing as _strong_ growth, but this distinction would never be found by using only one term (the word "growth" does not appear in the loughran lexicon).
 
 Whenever negation words preface a word in the loughran lexicon, we can flip its sign or set its sentiment value to zero, ensuring negation words do not skew the true sentiment values.
 
-Before continuing to the sentiment analysis, it is important to note that most sentiment lexicons have more positive words than negative words, so the results should be considered in relation to one another. For comparisons to other variables, an index is likely more appropriate.
+Before continuing to the sentiment analysis, it is important to note that most sentiment lexicons have more positive words than negative words, meaning the results should be considered in relation to one another instead of being interpreted in an absolute sense. For comparisons to other variables, an index is likely more appropriate.
 
 
 ```{r sentiment analysis, echo = TRUE, results = "show"}
@@ -608,7 +611,7 @@ ggraph::ggraph(bigram_unnested_documents_filtered %>%
 
 ```
 
-We see how the words relate to one another. Many are interconnected in the massive web going down the left side, but other networks are also formed for separate groups of associated words. While terms such as "participants," "market," "economic," or "inflation" dominate the large network, other networks exist largely independent of these words, such as "job gains" or "forward guidance."
+We see how the words relate to one another. Many are interconnected in the massive web going down the left side, but other networks are also formed for separate groups of associated words. While terms such as "participants," "market," "economic," or "inflation" dominate the large network, other networks exist and are largely independent of these words, such as "job gains" or "forward guidance."
 
 While this visualization of a Markov Chain allows us to visualize which words are typically follow one another, it does not show which words are related within documents. What do we do when we want to see which words appear in the same document (though they might not be adjacent to one another)?
 
@@ -621,7 +624,7 @@ A correlation test addresses this issue.
 
 ## Correlated Words
 
-We can calculate Pearson correlation coefficients to determine how often particular words appear with one another. Examining correlation coefficients across each of the FOMC Minutes is not ideal since each one consists of thousands of words, many of them being used in each document. The most highly correlated words, broken down by document as opposed to by another tokenization, _that are not perfectly correlated_ are still provided below, however. Many of the documents are more than ten pages long and refer to similar topics, so many of the words will have perfect correlation.
+We can calculate Pearson correlation coefficients to determine how often particular words appear with one another. Examining correlation coefficients across each of the FOMC Meetings is not ideal since each one consists of thousands of words, many of them being used in each document. The most highly correlated words, broken down by document as opposed to by another tokenization, _that are not perfectly correlated_ are still provided below, however. Many of the documents are more than ten pages long and refer to similar topics, so many of the words will have perfect correlation.
 
 ```{r correlation all docs, echo = FALSE, results = "show"}
 
@@ -770,7 +773,7 @@ corr %>%
 
 ```
 
-Pay attention to the scale and note that it is not the same for all words. These graphs paint a similar picture to the graphs from the N-grams section, though this graph is a bit more telling because even though words that frequently appear next to each other are included in these graphs (Ex. "[labor] force participation"), words that often occur in the same sentence or set of sentences appear as well (Ex. "family" and "disposable" are unlikely to be written after one another in a document, the only way for n-grams to find a connection between the two, though correlation coefficients still recognize these co-occurrences).
+Pay attention to the scale and note that it is not the same for all words. These graphs paint a similar picture to the graphs from the N-grams section, though this graph is a bit more telling because even though words that frequently appear next to each other are still included in these graphs (Ex. "[labor] force participation"), words that often occur in the same sentence or set of sentences appear as well (Ex. "family" and "disposable" are unlikely to be written after one another in a document, the only way for n-grams to find a connection between the two, though correlation coefficients still recognize these co-occurrences).
 
 One of the best uses of these correlations is to pick interesting words and find how other terms relate to them in a network, similar to that from the previous section. Note that since there is no directional relationship, there are no arrows on the graph. Since the number of words is enormous, only those terms with at a correlation of at least 0.6 are included.
 
@@ -790,7 +793,7 @@ corr %>%
 ```
 
 
-As noted, this graph is very similar to the one from the Markov Chains section. The difference between this graph and its counterpart follows the same explanation provided moments before; n-grams 'pick up' fewer relationships between terms than do correlation coefficients. Correlation coefficients capture relationships between all words, not only those found in succession. One shortcoming of this graph compared to the one from the previous section is that this graph cannot contain directional arrows, so we cannot tell whether these words were used in conjunction with one another, or whether they merely relate to similar topics.
+As noted, this graph is very similar to the one from the Markov Chains section. The difference between this graph and its counterpart follows the same explanation provided moments before: n-grams 'pick up' fewer relationships between terms than do correlation coefficients. Correlation coefficients capture relationships between all words, not only those found in succession. One shortcoming of this graph compared to the one from the previous section is that this graph cannot contain directional arrows, so we cannot tell whether these words were used in conjunction with one another, or whether they merely relate to similar topics.
 
 
 
@@ -799,7 +802,7 @@ As noted, this graph is very similar to the one from the Markov Chains section. 
 
 ## Topic Modeling
 
-Speaking of topics, we can use algorithms to identify topics within the dataset. I will be using the latent Dirichlet allocation algorithm to identify these topics. LDA captures document-topic probabilities (document is defined loosely as "a group of words"). Every document is a mixture of topics, and every topic is a mixture of words. For example, the topics in the FOMC Minutes of January 28th, 2009 could be 40% inflation, 30% financial markets, and 30% labor markets (_every document is a mixture of topics_). The inflation could be made up of words such as "rate," "cpi," etc., while the financial markets topic could be made up of terms such as "rate," "yield," etc. (_every topic is a mixture of words_).
+Speaking of topics, we can use algorithms to identify topics within the dataset. I will be using the latent Dirichlet allocation algorithm to identify these topics. LDA captures document-topic probabilities (document is defined loosely as "a group of words"). Every document is a mixture of topics, and every topic is a mixture of words. For example, let's say that the topics in the FOMC Minutes from January 28th, 2009 are be 40% inflation, 30% financial markets, and 30% labor markets (_every document is a mixture of topics_). The inflation topic could be made up of words such as "rate," "cpi," etc., while the financial markets topic could be made up of terms such as "rate," "yield," etc. (_every topic is a mixture of words_).
 
 You might have noticed that the word "rate" appeared in both the inflation and financial markets topics. That is fine--unlike other unsupervised learning/clustering methods, LDA allows words to be reused in different topics. Just as two words have different meanings in human language, two words can appear in different topics with LDA.
 
@@ -825,6 +828,7 @@ fed_topics_beta %>%
   slice_max(order_by = beta, n = 7) %>% 
   ungroup() %>% 
   arrange(topic, -beta) %>% 
+  mutate(topic = paste0("Topic ", topic)) %>% 
   mutate(term = reorder(term, beta)) %>% 
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = F) +
@@ -833,7 +837,7 @@ fed_topics_beta %>%
 
 ```
 
-There is much overlap in the topics the model found. This is not surprising--FOMC Minutes usually have a predictable agenda they need to get through.
+There is much overlap in the topics the model found. This is not surprising--the FOMC usually has a predictable agenda it needs to get through.
 
 We may instead be interested in those words having the greatest difference between groups (as opposed to most likely to appear in a particular topic) in each category. We can use a log odds ratio to calculate this difference. For example, which words are most different between topic 8 and topic 1? (For those unfamiliar with the math, just know that the negative values are terms belonging to topic 1 and the positive values belong to topic 8.)
 
@@ -857,11 +861,11 @@ fed_topics_beta %>%
 
 ```
 
-If nothing else, we are all familiar with topic 1...
+If nothing else, we are all familiar with Topic 1...
 
 $~$
 
-In addition to finding which words belong to which topics, we can also determine which topics belong to which documents. Since we know roughly when topic 1 is identified, we can observe just when these topics were most likely to occur.
+In addition to finding which words belong to which topics, we can also determine which topics belong to which documents. Since we know roughly when Topic 1 is identified, we can confirm our observations and determine just when each topic is most likely to occur.
 
 ```{r topics by date, echo = FALSE, results = "show"}
 
@@ -875,15 +879,16 @@ fed_topics_gamma %>%
   facet_wrap(~topic, ncol = 2) +
   xlab("Date") +
   ylab("gamma") +
+  ggtitle("Probability Density Functions of Topics") +
   theme_bw()
 
 
 ```
 
-In the event you did not believe me, the probability of topic 1 appearing in FOMC Minutes shoots up into the sky during meetings in 2020.
+Topic 2 appears in the first meeting of each year. There are 12 peaks in the sample period and 12 years of data. The meetings are not on January first, remember, and the vertical time bars on the charts have intervals of 2.5 years. There is a section at the beginning of the first FOMC Minutes release of each year called “Annual Organizational Matters” (see [this FOMC Minutes release](https://www.federalreserve.gov/monetarypolicy/fomcminutes20200129.htm), for example) which appears only in first-meeting-of-the-year meetings. People are elected to their positions at the Fed (or are they appointed? I didn’t vote for them...). Topic 2 is the Fed's version of housekeeping.
 
 
-
+In the event you did not believe me, the probability of Topic 1 appearing in FOMC Minutes shoots up into the sky during the 2020 meetings.
 
 
 ## References
