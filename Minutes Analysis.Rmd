@@ -887,6 +887,7 @@ fed_topics_gamma %>%
 
 Topic 2 appears in the first meeting of each year. There are 12 peaks in the sample period and 12 years of data. The meetings are not on January first, remember, and the vertical time bars on the charts have intervals of 2.5 years. There is a section at the beginning of the first FOMC Minutes release of each year called “Annual Organizational Matters” (see [this FOMC Minutes release](https://www.federalreserve.gov/monetarypolicy/fomcminutes20200129.htm), for example) which appears only in first-meeting-of-the-year meetings. People are elected to their positions at the Fed (or are they appointed? I didn’t vote for them...). Topic 2 is the Fed's version of housekeeping.
 
+$~$
 
 In the event you did not believe me, the probability of Topic 1 appearing in FOMC Minutes shoots up into the sky during the 2020 meetings.
 
