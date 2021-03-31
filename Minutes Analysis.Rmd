@@ -4,7 +4,8 @@ author: "Connor Krenzer"
 date: "1/4/2021"
 output:
   pdf_document: default
-  html_document: default
+  toc: yes
+  toc_depth: 2
 editor_options: 
   chunk_output_type: console
 ---
@@ -537,7 +538,7 @@ Sentiment analysis could be used for the terms without sorting them into pairs, 
 
 Whenever negation words preface a word in the loughran lexicon, we can flip its sign or set its sentiment value to zero, ensuring negation words do not skew the true sentiment values.
 
-Before continuing to the sentiment analysis, it is important to note that most sentiment lexicons have more positive words than negative words--there is an imbalance between the number of positive and negative words. The results, then, should be considered in relation to one another rather than in an absolute sense. For comparisons to other variables, an index is likely more appropriate.
+Before continuing to the sentiment analysis, it is important to note that sentiment lexicons do not contain the same number of positive words as negative words--there is an imbalance (in most cases, sentiment lexicons have more positive words than negative words--Loughran and McDonald's lexicon is no different). The results, then, should be considered in relation to one another rather than in an absolute sense. For comparisons to other variables, an index is likely more appropriate.
 
 
 ```{r sentiment analysis, echo = TRUE, results = "show"}
@@ -842,7 +843,7 @@ fed_topics_beta %>%
 
 There is much overlap in the topics the model found. This is not surprising--the FOMC usually has a predictable agenda it needs to get through.
 
-We may instead be interested in those words having the greatest difference between groups (as opposed to those most likely to appear in a particular topic). We can use a log odds ratio to calculate this difference. For example, which words are most different between topic 8 and topic 1? (For those unfamiliar with the math, just know that the negative values are terms belonging to topic 1 and the positive values belong to topic 8.)
+We may instead be interested in those words having the greatest difference between groups (as opposed to those most likely to appear in a particular topic). We can use a log ratio to calculate this difference. For example, which words are most different between topic 8 and topic 1? (For those unfamiliar with the math, just know that the negative values are terms belonging to topic 1 and the positive values belong to topic 8.)
 
 
 ```{r comparing topics, echo = TRUE, results = "show"}

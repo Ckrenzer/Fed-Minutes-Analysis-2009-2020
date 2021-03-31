@@ -38,8 +38,9 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# The output file
+# The output files
 Minutes-Analysis.html
+Minutes-Analysis.Rmd
 
 # My own scrap work
 scrap work.R
@@ -47,5 +48,6 @@ scrap work.R
 # Sample files
 Sample/
 
-# export Rmd file
-Minutes-Analysis.Rmd
+
+# scrap work
+scrap work.R
