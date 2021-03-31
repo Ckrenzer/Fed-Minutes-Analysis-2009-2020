@@ -206,7 +206,7 @@ A great place to start any textual analysis is with word counts.
 
 ## Common Words
 
-Brian F. Madigan is the Secretary who writes all these meetings--he has been the secretary for at least the last 11 years! In a way, we are exploring one man's work over the course of a decade...
+Brian F. Madigan is the Secretary who writes all these meetings--he has been the secretary for at least the last 12 years! In a way, we are exploring one man's work over the course of a decade...
 
 After removing 'stop words'--those words that are extremely common and provide very little meaning (Ex. "the," "of," "a," "to," etc.)--which words does Brian use most frequently?
 
