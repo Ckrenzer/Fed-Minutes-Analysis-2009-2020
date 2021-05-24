@@ -43,7 +43,7 @@ knitr::opts_chunk$set(echo = FALSE,
 I recommend pulling the information using the HTML version of these meetings. The PDFs are a nightmare to clean (speaking from experience)! If you do decide to read the pdf text into R, I suggest using the extract_text() function from the tabulizer package because it is smart enough to recognize columns of selectable PDF text. Other packages popular for reading in PDFs, such as readtext or pdftools, will only read across the page left to right, then down--despite the pages containing two separate columns of text.
 
 
-```{r packages, echo = TRUE}
+```{r packages, echo = FALSE}
 # The names of all your installed packages
 package_names <- rownames(installed.packages())
 
@@ -62,6 +62,7 @@ if(!"ggraph" %in% package_names) install.packages("ggraph")
 if(!"grid" %in% package_names) install.packages("grid")
 if(!"widyr" %in% package_names) install.packages("widyr")
 if(!"topicmodels" %in% package_names) install.packages("topicmodels")
+if(!"textdata" %in% package_names) install.packages("textdata")
 
 # Loading in dplyr because it is used too often
 # to :: it the entire time
@@ -82,7 +83,7 @@ Since I started this process using the pdf files, I will use their file names to
 There are two formats for the HTML file--one for the Fed Minutes before 2012 and those released on or after that year. With this in mind, two functions will be used to read in the different formats. The documents are parsed in chronological order but are also arranged after being added to the tibble, in the event that something were to happen to the order of the files in the "Fed Minutes Releases" folder from which these names were pulled.
 
 
-```{r import, echo = TRUE}
+```{r import, echo = FALSE}
 
 # The code in this section "makes" the dataset
 old_format <- function(id){
@@ -431,7 +432,7 @@ We do not need to restrict our analysis to one word. We can extract multiple wor
 First, the most common pairs of words:
 
 
-```{r bigram uses graph, echo = F, results = "show"}
+```{r bigram uses graph, echo = FALSE, results = "show"}
 
 # The bigrams
 bigram_unnested_documents <- documents %>% 
@@ -466,7 +467,7 @@ bigram_unnested_documents_filtered %>%
 Using two words for the analysis allows us to ask more specific questions about the data that could not be answered with just one word. It allows us to ask things like, how has the Fed's use of "financial markets" compared with its use of "labor market" over time?
 
 
-```{r finc vs labor, echo = F, results = "show"}
+```{r finc vs labor, echo = FALSE, results = "show"}
 
 
 # Usage of "financial markets" vs. "labor market" over time
@@ -541,7 +542,7 @@ Whenever negation words preface a word in the loughran lexicon, we can flip its 
 Before continuing to the sentiment analysis, it is important to note that sentiment lexicons do not contain the same number of positive words as negative words--there is an imbalance (in most cases, sentiment lexicons have more positive words than negative words--Loughran and McDonald's lexicon is no different). The results, then, should be considered in relation to one another rather than in an absolute sense. For comparisons to other variables, an index is likely more appropriate.
 
 
-```{r sentiment analysis, echo = TRUE, results = "show"}
+```{r sentiment analysis, echo = FALSE, results = "show"}
 
 negation_words <- c("not", "no", "weak", "low", "never", "without", "slow")
 
@@ -648,7 +649,7 @@ knitr::kable(unigram_unnested_documents %>%
 ```
 
 
-As implied above, what should instead be done is break the documents into smaller pieces and calculate correlation coefficients for each of these subsections. To ensure proper nouns do not dominate the results with perfect correlation (and because R said my computer ran out of memory =/), only those terms which appear more than 100 times will be used to calculate the coefficients. Also note that a significant number of words were removed--words such as "secretary," "jerome," "tuesday," "dallas," "secretary," "governors," and many similar terms--to keep only the information we are interested in.
+As implied above, what should instead be done is break the documents into smaller pieces and calculate correlation coefficients for each of these subsections. To ensure proper nouns do not dominate the results with perfect correlation (and because R said my computer ran out of memory =/), only those terms which appear more than 100 times will be used to calculate the coefficients. Also note that a significant number of words were removed--words such as "secretary," "jerome," "tuesday," "dallas," "governors," and many similar terms--to keep only the information we are interested in.
 
 
 ```{r correlation doc sections, echo = FALSE, results = "show"}
@@ -846,7 +847,7 @@ There is much overlap in the topics the model found. This is not surprising--the
 We may instead be interested in those words having the greatest difference between groups (as opposed to those most likely to appear in a particular topic). We can use a log ratio to calculate this difference. For example, which words are most different between topic 8 and topic 1? (For those unfamiliar with the math, just know that the negative values are terms belonging to topic 1 and the positive values belong to topic 8.)
 
 
-```{r comparing topics, echo = TRUE, results = "show"}
+```{r comparing topics, echo = FALSE, results = "show"}
 
 fed_topics_beta %>% 
   mutate(topic = paste0("topic", topic)) %>% 
