@@ -49,6 +49,7 @@ package_names <- rownames(installed.packages())
 
 # Installing packages used in this project
 if(!"dplyr" %in% package_names) install.packages("dplyr")
+if(!"readr" %in% package_names) install.packages("readr")
 if(!"stringr" %in% package_names) install.packages("stringr")
 if(!"tidytext" %in% package_names) install.packages("tidytext")
 if(!"rvest" %in% package_names) install.packages("rvest")
@@ -83,7 +84,9 @@ Since I started this process using the pdf files, I will use their file names to
 There are two formats for the HTML file--one for the Fed Minutes before 2012 and those released on or after that year. With this in mind, two functions will be used to read in the different formats. The documents are parsed in chronological order but are also arranged after being added to the tibble, in the event that something were to happen to the order of the files in the "Fed Minutes Releases" folder from which these names were pulled.
 
 
-```{r import, echo = FALSE}
+###### Note: As of 6/26/2021, the web scraper no longer pulls all the information off the Federal Reserve's website each time this document is knitted. Instead, the results were stored in a file that gets read in to ensure reproducibility (should anything on the Fed's website change in the future).
+
+```{r import, echo = FALSE, eval = FALSE}
 
 # The code in this section "makes" the dataset
 old_format <- function(id){
@@ -186,6 +189,15 @@ for(i in stringr::str_remove_all(list.files(dirs[2:3]), "\\.pdf")){
 documents <- arrange(documents, doc_id)
 
 ```
+
+
+```{r loading in data, echo = FALSE, include = FALSE}
+
+# This file contains the results from the above chunk at the time of writing
+documents <- readr::read_rds(file = "fomc_minutes_text.rds")
+
+```
+
 
 
 ## The Dataset
