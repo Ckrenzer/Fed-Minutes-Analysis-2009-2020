@@ -32,9 +32,9 @@ I will explore these texts using various text mining approaches including sentim
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       results = "hide",
-                      error = F,
-                      warning = F,
-                      message = F)
+                      error = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
 ```
 
 
